@@ -16,7 +16,7 @@ private:
     int itemCount;
 
     // Checks if a generated location is valid according to game rules
-    bool isValidSpawn(const Point& p, const Player& p1, const Player& p2, const Screen& screen) const;
+    bool isValidSpawn(int x, int y, const Player& p1, const Player& p2, const Screen& screen) const;
 
     // Randomly selects an item character to spawn digits 0-9 or special chars
     char getRandomItemChar() const;

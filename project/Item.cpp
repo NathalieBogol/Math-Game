@@ -3,15 +3,15 @@
 #include <cmath>   
 
 // Checks if a generated location is valid according to the exercise rules
-bool Item::isValidSpawn(const Point& p, const Player& p1, const Player& p2, const Screen& screen) const {
+bool Item::isValidSpawn(int x, int y, const Player& p1, const Player& p2, const Screen& screen) const {
 
-    if (screen.isWall(p)) {
+    if (screen.isWall(Point(x, y, 0, 0, '*'))) {
         return false;
     }
 
     //Distance from players must be at least 3 
-    int distP1 = std::abs(p.getX() - p1.getLocation().getX()) + std::abs(p.getY() - p1.getLocation().getY());
-    int distP2 = std::abs(p.getX() - p2.getLocation().getX()) + std::abs(p.getY() - p2.getLocation().getY());
+    int distP1 = std::abs(x - p1.getLocation().getX()) + std::abs(y - p1.getLocation().getY());
+    int distP2 = std::abs(x - p2.getLocation().getX()) + std::abs(y - p2.getLocation().getY());
 
     if (distP1 < 3 || distP2 < 3) {
         return false;
@@ -19,8 +19,8 @@ bool Item::isValidSpawn(const Point& p, const Player& p1, const Player& p2, cons
 
     //Cannot be adjacent to an existing item (above, below, left, right, or same spot)
     for (int i = 0; i < itemCount; ++i) {
-        int dx = std::abs(p.getX() - items[i].getX());
-        int dy = std::abs(p.getY() - items[i].getY());
+        int dx = std::abs(x - items[i].getX());
+        int dy = std::abs(y - items[i].getY());
 
         if ((dx == 0 && dy == 0) || (dx == 1 && dy == 0) || (dx == 0 && dy == 1)) {
             return false;
@@ -57,9 +57,7 @@ void Item::spawnItem(const Player& p1, const Player& p2, const Screen& screen) {
         //Keep Y in the playable area rows 4 to 19 to avoid text areas
         int y = (rand() % 16) + 4;
 
-        Point candidate(x, y, 0, 0, '*'); // Temporary point for validation
-
-        if (isValidSpawn(candidate, p1, p2, screen)) {
+        if (isValidSpawn(x, y, p1, p2, screen)) {
             char itemChar = getRandomItemChar();
             items[itemCount] = Point(x, y, 0, 0, itemChar);
             itemCount++;

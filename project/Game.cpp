@@ -79,9 +79,8 @@ void Game::manage_instructions() {
 void Game::reset_game() {
     player_A = Player(Point(10, 10, 0, 0, 'A'), 'A', p_A_Keys);
     player_B = Player(Point(70, 10, 0, 0, 'B'), 'B', p_B_Keys);
-
-    Item.clearAll();
-    
+    items.clearAll();
+    screen.draw();
 }
 
 // Game loop
@@ -104,7 +103,7 @@ void Game::manage_playing() {
     screen.draw();
     player_A.draw();
     player_B.draw();
-    sleep_ms(100);
+    sleep_ms(50);
 }
 
 void Game::manage_pause() {

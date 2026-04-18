@@ -1,0 +1,203 @@
+﻿C++ 2026B - MTA - Exercises
+
+
+Requirements and Guidelines
+
+
+The exercises in the course require you to implement an educational math game, as a console application. The game is a competition between two players on solving math exercises. Exact rules follow below.
+
+
+Environment and Submission Instructions:
+
+
+The exercise should be implemented in Visual Studio 2022 or later, with standard C++ libraries and run on Windows with Console screen of standard size (80*25), using gotoxy for printing at a specific location on screen (X, Y), using _kbhit and _getch for getting input from the user without blocking, and Sleep for controlling the pace of the game.
+(All the above would be explained to you during one of the lab sessions).
+Submission is in MAMA, as a single zip file containing only the code and the vcxproj and sln files + readme.txt with IDs -- but without the DEBUG folder and without any compiled artifact.
+(Please make sure to delete hidden directories and unnecessary binary files).
+
+
+Note that you MUST provide a readme.txt file that would contain the IDs of the students submitting the exercise. Even if there is only a single submitter, you still need to put your ID in the readme.txt file. Your readme file will also list any decisions that you took and want to elaborate about.
+
+
+Important notes on GenAI and using external code snippets:
+
+
+* You may use ChatGPT or other GenAI tools, but remember that the responsibility for meeting the requirements and submitting working code is on you. Which means that you have to carefully read and understand any piece of code that you integrate into your submission. In any case, the expectations are that you will write your own code (with the help of AI if relevant, under some additional rules below) and can explain it.
+* You may find existing C++ implementations for this project out there on the web. Please note that any implementation that you find would probably not fit exactly the requirements of this exercise. Adapting existing code for the purpose of the exercise would probably be much more complicated than implementing your own code. In any case, the expectations are that you will write your own code and can explain it.
+* Important:
+If you choose to rely on AI generated code or on existing projects that you found on the web, or from any other source, you are required to add comments above any big portion of code that you didn’t write and is integrated into your project (for any snippet of 5 lines of code or more). The comment should point at the source of the code (link to the web, a brief summary of the prompt used with the AI tool to get this code, etc.). It would be emphasized again that: (a) it is valid to integrate code that you didn’t write! (b) you are still responsible for making sure the code works and fits its purpose. (c) you are required to have a clear comment indicating the origins of this code snippet. (d) slight adaptations to the code do not make it “yours”, so even if you rearrange it a bit, change variable names etc., but it is still an external code of 5 or more lines, you are still required to add the origins comment as explained above.
+* The instructions above are relevant also for integrating pieces of code that you got from the lab exercise or other resources provided by the course staff, etc. You should document that as well with a proper comment, indicating the origins of the code.
+________________
+
+
+
+
+Exercise 1
+In this exercise you will implement an educational math game, as a console application.
+
+
+You will determine how to use the console screen size (80×25 characters) for:
+   * Presenting the exercise.
+   * Displaying game status (point, lives).
+   * The area for collecting numbers.
+
+
+When the game begins, there are two player characters, placed on screen. A math exercise then appears on top of the screen, same exercise for both players. Both players will try to solve the exercise, by moving on screen and collecting digits.
+Digits and characters will appear on screen randomly, at random positions:
+   * digits (0 - 9) - to allow solving the exercise
+   * the character ‘e’ - to erase last digit collected by this player
+   * the character ‘c’ - to clear the entire number for this player
+   * the character ‘@’ - to erase last digit collected by the opponent player
+   * the character ‘#’ - to clear the entire number for the opponent player
+   * the character ‘$’ - add points to this player
+   * the character ‘*’ - this player loses life, number for this player is cleared
+   * the character ‘!’ - the opponent player loses life, opponent’s number is cleared
+   * The character ‘^’ - the current player’s speed is doubled, for 40 game cycles
+
+
+When a new character is added, it cannot be added adjacent to another character in any direction from the 4 adjacent directions: above, below, to the right or to the left.
+Also, a new character cannot appear in a distance of less than 3 points from any of the players (diff_x + diff_y from a player should be >= 3).
+A possible way to find a place for a new char: generate a random position, if it is not a valid position repeat 3 times, after which continue without placing this char.
+
+
+Once the game starts, the player chooses a movement direction using the designated keys, as defined below. After a direction is selected, the player continues moving automatically in that direction without requiring additional key presses, until the STAY key is pressed (as defined below). Players’ “movement speed” is 1 unless the player picks the double speed character as mentioned above. Note that double speed doesn’t mean skipping chars!!
+
+
+Input must be case-insensitive (both lowercase and uppercase letters should be accepted).
+
+
+Keys:
+
+
+
+
+	Player 1
+	Player 2
+	RIGHT
+	D
+	L
+	DOWN
+	X
+	M
+	LEFT
+	A
+	J
+	UP
+	W
+	I (i)
+	STAY
+	S
+	K
+	
+
+________________
+
+
+Menu
+The game shall have the following entry menu:
+(1) Start a new game
+(8) Present instructions and keys
+(9) EXIT
+
+
+Going beyond the edges of the screen
+There is an invisible tunnel that takes the players to the other side of the screen.
+(Top ⇔ Bottom, Left ⇔ Right).
+
+
+Protecting the exercise and legend areas
+It is the game’s responsibility (i.e. your code) to add some kind of a “Wall” char that does not allow the players to get into the exercise and legend areas.
+
+
+Players characters
+Player 1: A   Player 2: B
+
+
+Collecting a digit
+The digit is added to the solution position of this player, from left to right.
+
+
+When a player solves an exercise
+A message will appear on screen, the game will wait for a few moments, and the player will get additional points. Then, if the player reached the “winning score” another message will appear, announcing the winner, and the game will go back to the main menu.
+If the player didn’t reach the “winning score”, the screen will be cleared, a new exercise will appear and the players will start a new match.
+You should decide how many points each solution gives, how many points the char $ adds and what is the winning score.
+
+
+________________
+
+
+
+
+Pausing a game
+Pressing the ESC key during a game pauses the game. You should present a message on screen saying: “Game paused, press ESC again to continue or H to go to the main menu”.
+When the game is at a pause state, pressing ESC again would continue the game, with the players moving exactly as before the pausing, as if the game hadn’t paused. Pressing in pause mode ‘H’ or ‘h’ (the letter H standing for “Home”) ends the current game returning to the main menu (see comments about avoiding a recursive flow).
+
+
+Notes to be aware of:
+   1. Do not use the command ‘exit’:
+Using the command exit for finishing the program is not allowed. In general using ‘exit’ is a bad sign. You should finish the program by normally finishing main.
+   2. Make sure your program does not perform unnecessary bad recursive calls. For example, if your menu calls “game.run()” for starting a game, and then the game calls “menu.run()” for presenting the menu after the game ends, this sounds like a bad recursion that should be avoided.
+
+
+Bonus Points:
+You may be entitled for bonus points for additional features, such as adding colors or other nice features. Note: there will not be any bonus for music or any feature that requires additional binary files to be part of your submission! Adding large required binary files to your submissions may subtract points!
+
+
+Important notes for getting bonus:
+
+
+   1. If you decided to add colors (as a bonus feature) please add an option in the menu to run your game with or without colors (the default can be to use colors, but the menu shall allow a switch between Colors / No Colors) - to allow proper check of your exercise in case your color selection would not be convenient for our eyes. The game MUST work properly in the No Colors selection.
+
+
+Note: If you do want to support colors, use the following way for doing that:
+
+#include <windows.h>
+...
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+SetConsoleTextAttribute(hStdOut, FOREGROUND_RED);
+std::cout << "Hello" << std::endl;
+
+
+For color constants list see: Console Screen Buffers - Windows Console
+See also: Colorizing text in the console with C++ - Stack Overflow 
+
+
+Please note that alternative methods of coloring text suggested on the web, such as using color codes with system commands, may not always work. It is advisable to avoid these methods and, instead, use the approach mentioned above if you intend to add colors.
+
+
+   2. To get bonus points, you must indicate inside a bonus.txt file the bonus additions that you implemented.
+
+
+________________
+
+
+
+
+Note:
+In exercise 1 you are required to support only “addition” exercises (num1 + num2).
+
+
+Important!
+You should design your game so the players will have to go through at least 2 screens for a winner to be announced. The legend should present the number of points per each player and the score required for winning. 
+
+
+________________
+
+
+
+
+Self Decisions:
+Any decision that you have to make, which does not have any clear guidance in the requirements, you can take a reasonable decision as long as it doesn’t contradict any of the requirements or make the game naive or too restricted.
+
+
+In case you have a question for which you don’t have an answer and you don’t want to make an assumption or you feel the assumption might be wrong or contradicts other requirements, please ask in the Exercise Forum in Mama.
+
+
+Error Handling
+The program should never crash. In case of problems in files, always prefer overcoming the problem and allowing using the file. However if a file cannot be used, provide a proper message to the user, clearly pointing at the problem, and return from main.
+
+
+Important – Important!!!
+We will explain to you in one of the lab sessions how to use gotoxy for printing at a specific location on screen (X, Y), _kbhit and _getch for getting input from the user without blocking, and Sleep for controlling the pace of the game.
+BUT, you don’t have to wait for that, you can already watch now Keren Kalif explaining that in this great video tutorial: C++ תכנות מונחה עצמים | קרן כליף | משחק הנחשים 
+The proper code would be published. 

@@ -10,8 +10,21 @@ void Point::draw(char c) {
 }
 
 void Point::move() {
-	x = (x + dir_x + Screen::MAX_X) % Screen::MAX_X;
-	y = (y + dir_y + Screen::MAX_Y) % Screen::MAX_Y;
+    int nextX = (x + dir_x + Screen::MAX_X) % Screen::MAX_X;
+
+    // Only tunnel in playable area (rows 4-19)
+    int nextY = y + dir_y;
+    if (dir_y != 0) {
+        int playableRows = 16; // 19 - 4 + 1
+        int relY = (nextY - 4 + playableRows) % playableRows;
+        nextY = relY + 4;
+    }
+
+    // Check if destination is a wall (optional, if you want to block walls)
+    if (nextY != 3 && nextY != 20) { // 3 and 20 are wall rows
+        x = nextX;
+        y = nextY;
+    }
 }
 
 void Point::setDirection(Direction dir) {

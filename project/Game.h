@@ -1,6 +1,7 @@
 #pragma once
 #include "Player.h"
 #include "Screen.h"
+#include "Item.h"
 
 enum class GameStatus {
 	MENU,
@@ -15,6 +16,7 @@ private:
 	Screen screen;
 	Player player_A;
 	Player player_B;
+	Item items;
 	GameStatus current_status;
 
 	void manage_menu();
