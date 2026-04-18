@@ -6,7 +6,7 @@
 class Item {
 public:
     //max number of items on the screen at the same time
-    static constexpr int MAX_ITEMS = 50;
+    static constexpr int MAX_ITEMS = 20;
 
 private:
     // Static array to store the currently active items 
