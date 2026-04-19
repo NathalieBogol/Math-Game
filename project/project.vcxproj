@@ -130,7 +130,7 @@
     <ClInclude Include="console.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Item.h" />
+    <ClInclude Include="Items.h" />
     <ClInclude Include="MathExercise.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Point.h" />
@@ -138,7 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="Items.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathExercise.cpp" />
     <ClCompile Include="Player.cpp" />

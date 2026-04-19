@@ -1,9 +1,9 @@
-#include "Item.h"
+#include "Items.h"
 #include <cstdlib> 
 #include <cmath>   
 
 // Checks if a generated location is valid according to the exercise rules
-bool Item::isValidSpawn(int x, int y, const Player& p1, const Player& p2, const Screen& screen) const {
+bool Items::isValidSpawn(int x, int y, const Player& p1, const Player& p2, const Screen& screen) const {
 
     if (screen.isWall(Point(x, y, 0, 0, '*'))) {
         return false;
@@ -31,7 +31,7 @@ bool Item::isValidSpawn(int x, int y, const Player& p1, const Player& p2, const 
 }
 
 //Generates a random character
-char Item::getRandomItemChar() const {
+char Items::getRandomItemChar() const {
     int roll = rand() % 100;
 
     if (roll < 75) {
@@ -46,7 +46,7 @@ char Item::getRandomItemChar() const {
 }
 
 //Attempts to spawn an item up to 3 times
-void Item::spawnItem(const Player& p1, const Player& p2, const Screen& screen) {
+void Items::spawnItem(const Player& p1, const Player& p2, const Screen& screen) {
     if (itemCount >= MAX_ITEMS) {
         return; 
     }
@@ -60,6 +60,7 @@ void Item::spawnItem(const Player& p1, const Player& p2, const Screen& screen) {
         if (isValidSpawn(x, y, p1, p2, screen)) {
             char itemChar = getRandomItemChar();
             items[itemCount] = Point(x, y, 0, 0, itemChar);
+            items[itemCount].draw();
             itemCount++;
             break; // Successfully spawned, exit the retry loop
         }
@@ -67,14 +68,14 @@ void Item::spawnItem(const Player& p1, const Player& p2, const Screen& screen) {
 }
 
 // Draws all active items
-void Item::drawItems() {
+void Items::drawItems() {
     for (int i = 0; i < itemCount; ++i) {
         items[i].draw();
     }
 }
 
 // Checks if a player hit an item
-char Item::checkCollision(const Point& playerLocation) {
+char Items::checkCollision(const Point& playerLocation) {
     for (int i = 0; i < itemCount; ++i) {
         if (items[i] == playerLocation) {
             char collected = items[i].getChar();
@@ -87,6 +88,6 @@ char Item::checkCollision(const Point& playerLocation) {
     return ' '; 
 }
 
-void Item::clearAll() {
+void Items::clearAll() {
     itemCount = 0;
 }

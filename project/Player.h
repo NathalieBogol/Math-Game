@@ -19,6 +19,7 @@ public:
 	Player(const Point& startLocation, char playerch, const char(&playersKeys)[5]);
 
 	void draw();
+	void erase();
 	void move();
 	void keyPressed(char key);
 

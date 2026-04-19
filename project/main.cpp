@@ -7,7 +7,7 @@
 
 int main() {
     // to reset the random
-    srand(time(nullptr));
+    srand((unsigned int)time(nullptr));
 
     init_console();
     clrscr();

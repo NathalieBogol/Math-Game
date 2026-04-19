@@ -1,7 +1,7 @@
 #pragma once
 #include "Player.h"
 #include "Screen.h"
-#include "Item.h"
+#include "Items.h"
 #include "MathExercise.h"
 
 enum class GameStatus {
@@ -17,7 +17,7 @@ private:
 	Screen screen;
 	Player player_A;
 	Player player_B;
-	Item items;
+	Items items;
 	MathExercise exercise;
 	GameStatus current_status;
 	int itemSpawnCounter = 0; // Counter for item spawn timing

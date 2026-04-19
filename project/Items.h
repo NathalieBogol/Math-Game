@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "Screen.h"
 
-class Item {
+class Items {
 public:
     //max number of items on the screen at the same time
     static constexpr int MAX_ITEMS = 20;
@@ -23,7 +23,7 @@ private:
 
 public:
     // Constructor initializes the item counter to zero
-    Item() : itemCount(0) {}
+    Items() : itemCount(0) {}
 
     //Attempts to spawn a new item
     void spawnItem(const Player& p1, const Player& p2, const Screen& screen);

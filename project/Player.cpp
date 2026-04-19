@@ -3,7 +3,7 @@
 
 //Constructor
 Player::Player(const Point& startLocation, char playerch, const char(&playersKeys)[5])
-    : location(startLocation), ch(playerch), score(0), lives(3), speedCycles(0)
+    : location(startLocation), ch(playerch), score(0), lives(3), speedCycles(0) // To do: use ch in location instaed in player itself
 {
     for (int i = 0; i < 5; ++i) {
         keys[i] = std::tolower(playersKeys[i]);
@@ -12,9 +12,14 @@ Player::Player(const Point& startLocation, char playerch, const char(&playersKey
 void Player::draw() {
     location.draw(ch);
 }
+void Player::erase() {
+    location.draw(' ');
+}
 
 void Player::move() {
+    erase();
     location.move();
+    draw();
     if (speedCycles > 0) {
         speedCycles--;
     }

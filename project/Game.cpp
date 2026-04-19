@@ -1,6 +1,6 @@
 #include "Game.h"
 #include "console.h"
-#include "Item.h"
+#include "Items.h"
 #include <iostream>
 
 //Each of the players keys
@@ -137,11 +137,11 @@ void Game::manage_playing() {
     } else if (collectedB != ' ') {
         processSpecialItem(player_B, player_A, collectedB);
     }
-
-    screen.draw();
-    items.drawItems(); // Draw all items on the screen
-    player_A.draw();
-    player_B.draw();
+    // To do: remove redundant code 
+    //screen.draw();
+    //items.drawItems(); // Draw all items on the screen
+    //player_A.draw();
+    //player_B.draw();
 
     // Display player answers
     displayAnswers();
@@ -167,6 +167,11 @@ void Game::manage_pause() {
     char key = get_single_char();
     if (key == 27) { // ESC
         current_status = GameStatus::PLAYING;
+        gotoxy(10, 12);
+        std::cout << "                                                                    " << std::endl;
+		items.drawItems(); // Redraw items after pause
+		player_A.draw();
+		player_B.draw();
     }
     else if (key == 'h' || key == 'H') {
         current_status = GameStatus::MENU;
