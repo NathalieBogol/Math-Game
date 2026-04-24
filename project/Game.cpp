@@ -10,13 +10,14 @@ static const char p_B_Keys[5] = { 'i', 'l', 'm', 'j', 'k' };
 //icor
 Game::Game() :
     current_status(GameStatus::MENU),
-    // player A
-    player_A(Point(10, 10, 0, 0, 'A'), 'A',p_A_Keys),
-    // player B
-    player_B(Point(70, 10, 0, 0, 'B'), 'B', p_B_Keys),
     itemSpawnCounter(0),
-    roundNumber(0) // Initialize round
-{ }
+    roundNumber(0),
+    players{
+        Player(Point(10, 10, 0, 0, 'A'), 'A', p_A_Keys),
+        Player(Point(70, 10, 0, 0, 'B'), 'B', p_B_Keys)
+    }
+{
+}
 
     void Game::run() {
     while (current_status != GameStatus::EXIT) {
@@ -79,8 +80,8 @@ void Game::manage_instructions() {
 
 
 void Game::reset_game() {
-    player_A = Player(Point(10, 10, 0, 0, 'A'), 'A', p_A_Keys);
-    player_B = Player(Point(70, 10, 0, 0, 'B'), 'B', p_B_Keys);
+    players[0] = Player(Point(10, 10, 0, 0, 'A'), 'A', p_A_Keys);
+    players[1] = Player(Point(70, 10, 0, 0, 'B'), 'B', p_B_Keys);
     roundNumber = 0;
     exercise.generate(); // Generate first exercise
     items.clearAll();
@@ -98,61 +99,52 @@ void Game::manage_playing() {
             current_status = GameStatus::PAUSED;
             return; 
         }
-        player_A.keyPressed(key);
-        player_B.keyPressed(key);
+        players[0].keyPressed(key);
+        players[1].keyPressed(key);
     }
-    player_A.move();
-    player_B.move();
+    players[0].move();
+    players[1].move();
 
     // Check if either player lost all lives
-    if (player_A.getLives() <= 0) {
-        announceWinner('B');
-        current_status = GameStatus::MENU;
-        return;
-    }
-    if (player_B.getLives() <= 0) {
-        announceWinner('A');
-        current_status = GameStatus::MENU;
-        return;
+    for (int i = 0; i < NUM_PLAYERS; i++) {
+        if (players[i].getLives() <= 0) {
+            int winner = (i == 0) ? 1 : 0;
+            announceWinner('A' + winner);
+            current_status = GameStatus::MENU;
+            return;
+        }
     }
 
     // Spawn a new item every 20 frames
     itemSpawnCounter++;
     if (itemSpawnCounter >= 20) {
-        items.spawnItem(player_A, player_B, screen);
+        items.spawnItem(players[0], players[1], screen);
         itemSpawnCounter = 0;
     }
 
     // Check for item collection for each player
-    char collectedA = items.checkCollision(player_A.getLocation());
-    if (collectedA >= '0' && collectedA <= '9') {
-        player_A.addDigit(collectedA);
-    } else if (collectedA != ' ') {
-        processSpecialItem(player_A, player_B, collectedA);
-    }
+    for (int i = 0; i < NUM_PLAYERS; i++) {
+        char collected = items.checkCollision(players[i].getLocation());
+        int opponent = (i == 0) ? 1 : 0;
 
-    char collectedB = items.checkCollision(player_B.getLocation());
-    if (collectedB >= '0' && collectedB <= '9') {
-        player_B.addDigit(collectedB);
-    } else if (collectedB != ' ') {
-        processSpecialItem(player_B, player_A, collectedB);
+        if (collected >= '0' && collected <= '9') {
+            players[i].addDigit(collected);
+        } else if (collected != ' ') {
+            processSpecialItem(players[i], players[opponent], collected);
+        }
     }
-    // To do: remove redundant code 
-    //screen.draw();
-    //items.drawItems(); // Draw all items on the screen
-    //player_A.draw();
-    //player_B.draw();
+   
 
     // Display player answers
     displayAnswers();
 
     // Show Player A info (bottom left)
     gotoxy(0, 24);
-    std::cout << "A Score: " << player_A.getScore() << "  Lives: " << player_A.getLives() << "      ";
+    std::cout << "A Score: " << players[0].getScore() << "  Lives: " << players[0].getLives() << "      ";
 
     // Show Player B info (bottom right)
     gotoxy(Screen::MAX_X - 20, 24);
-    std::cout << "B Score: " << player_B.getScore() << "  Lives: " << player_B.getLives() << "      ";
+    std::cout << "B Score: " << players[1].getScore() << "  Lives: " << players[1].getLives() << "      ";
 
     // Check if either player solved the exercise
     check_status();
@@ -161,21 +153,21 @@ void Game::manage_playing() {
 }
 
 void Game::manage_pause() {
-    gotoxy(10, 12);
-    std::cout << "Game paused, press ESC again to continue or H to go to the main menu" << std::endl;
+	gotoxy(10, 12);
+	std::cout << "Game paused, press ESC again to continue or H to go to the main menu" << std::endl;
 
-    char key = get_single_char();
-    if (key == 27) { // ESC
-        current_status = GameStatus::PLAYING;
-        gotoxy(10, 12);
-        std::cout << "                                                                    " << std::endl;
+	char key = get_single_char();
+	if (key == 27) { // ESC
+		current_status = GameStatus::PLAYING;
+		gotoxy(10, 12);
+		std::cout << "                                                                    " << std::endl;
 		items.drawItems(); // Redraw items after pause
-		player_A.draw();
-		player_B.draw();
-    }
-    else if (key == 'h' || key == 'H') {
-        current_status = GameStatus::MENU;
-    }
+		players[0].draw();
+		players[1].draw();
+	}
+	else if (key == 'h' || key == 'H') {
+		current_status = GameStatus::MENU;
+	}
 }
 
 void Game::processSpecialItem(Player& current, Player& opponent, char itemChar) {
@@ -213,43 +205,28 @@ void Game::processSpecialItem(Player& current, Player& opponent, char itemChar) 
 
 void Game::displayAnswers() {
     gotoxy(0, 2);
-    std::cout << "A Answer: " << player_A.getCurrentAnswer() << "           ";
+    std::cout << "A Answer: " << players[0].getCurrentAnswer() << "           ";
 
     gotoxy(Screen::MAX_X - 18, 2);
-    std::cout << "B Answer: " << player_B.getCurrentAnswer() << "           ";
+    std::cout << "B Answer: " << players[1].getCurrentAnswer() << "           ";
 }
 
 void Game::check_status() {
-    // Check if player A solved the exercise
-    if (exercise.isCorrect(player_A.getCurrentAnswer()) && player_A.getCurrentAnswer() != "") {
-        player_A.addScore(POINTS_PER_SOLUTION);
-        gotoxy(25, 12);
-        std::cout << "Player A solved it!";
-        sleep_ms(1500);
+    for (int i = 0; i < NUM_PLAYERS; i++) {
+        if (exercise.isCorrect(players[i].getCurrentAnswer()) && players[i].getCurrentAnswer() != "") {
+            players[i].addScore(POINTS_PER_SOLUTION);
+            gotoxy(25, 12);
+            std::cout << "Player " << (char)('A' + i) << " solved it!";
+            sleep_ms(1500);
 
-        if (player_A.getScore() >= WINNING_SCORE) {
-            announceWinner('A');
-            current_status = GameStatus::MENU;
-        } else {
-            nextRound();
+            if (players[i].getScore() >= WINNING_SCORE) {
+                announceWinner('A' + i);
+                current_status = GameStatus::MENU;
+            } else {
+                nextRound();
+            }
+            return;
         }
-        return;
-    }
-
-    // Check if player B solved the exercise
-    if (exercise.isCorrect(player_B.getCurrentAnswer()) && player_B.getCurrentAnswer() != "") {
-        player_B.addScore(POINTS_PER_SOLUTION);
-        gotoxy(25, 12);
-        std::cout << "Player B solved it!";
-        sleep_ms(1500);
-
-        if (player_B.getScore() >= WINNING_SCORE) {
-            announceWinner('B');
-            current_status = GameStatus::MENU;
-        } else {
-            nextRound();
-        }
-        return;
     }
 }
 
@@ -257,8 +234,9 @@ void Game::nextRound() {
     roundNumber++;
     if (roundNumber < TOTAL_ROUNDS) {
         // Clear answers and items, generate new exercise
-        player_A.clearAnswer();
-        player_B.clearAnswer();
+        for (int i = 0; i < NUM_PLAYERS; i++) {
+            players[i].clearAnswer();
+        }
         items.clearAll();
         exercise.generate();
         screen.draw();

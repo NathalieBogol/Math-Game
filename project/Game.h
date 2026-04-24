@@ -14,9 +14,9 @@ enum class GameStatus {
 
 class Game {
 private:
+	static constexpr int NUM_PLAYERS = 2;
 	Screen screen;
-	Player player_A;
-	Player player_B;
+	Player players[NUM_PLAYERS]; // players[0] = A, players[1] = B
 	Items items;
 	MathExercise exercise;
 	GameStatus current_status;
