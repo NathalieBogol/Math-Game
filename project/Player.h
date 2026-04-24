@@ -6,8 +6,7 @@
 class Player
 {
 private:
-	Point location; //current location
-	char ch; //A or B
+	Point location; //current location and character
 	char keys[5]; //up,down,right,left,stay
 
 	int score;
@@ -16,7 +15,7 @@ private:
 	int speedCycles;
 
 public:
-	Player(const Point& startLocation, char playerch, const char(&playersKeys)[5]);
+ Player(const Point& startLocation, const char(&playersKeys)[5]);
 
 	void draw();
 	void erase();
@@ -25,7 +24,7 @@ public:
 
 	//inline functions
 	Point getLocation() const { return location; }
-	char getChar() const { return ch; }
+ char getChar() const { return location.getChar(); }
 	int getScore() const { return score; }
 	int getLives() const { return lives; }
 	std::string getCurrentAnswer() const { return currentAnswer; }

@@ -13,8 +13,8 @@ Game::Game() :
     itemSpawnCounter(0),
     roundNumber(0),
     players{
-        Player(Point(10, 10, 0, 0, 'A'), 'A', p_A_Keys),
-        Player(Point(70, 10, 0, 0, 'B'), 'B', p_B_Keys)
+        Player(Point(10, 10, 0, 0, 'A'), p_A_Keys),
+        Player(Point(70, 10, 0, 0, 'B'), p_B_Keys)
     }
 {
 }
@@ -80,8 +80,8 @@ void Game::manage_instructions() {
 
 
 void Game::reset_game() {
-    players[0] = Player(Point(10, 10, 0, 0, 'A'), 'A', p_A_Keys);
-    players[1] = Player(Point(70, 10, 0, 0, 'B'), 'B', p_B_Keys);
+    players[0] = Player(Point(10, 10, 0, 0, 'A'), p_A_Keys);
+    players[1] = Player(Point(70, 10, 0, 0, 'B'), p_B_Keys);
     roundNumber = 0;
     exercise.generate(); // Generate first exercise
     items.clearAll();

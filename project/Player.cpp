@@ -2,15 +2,15 @@
 #include <cctype> //std::tolower
 
 //Constructor
-Player::Player(const Point& startLocation, char playerch, const char(&playersKeys)[5])
-    : location(startLocation), ch(playerch), score(0), lives(3), speedCycles(0) // To do: use ch in location instaed in player itself
+Player::Player(const Point& startLocation, const char(&playersKeys)[5])
+    : location(startLocation), score(0), lives(3), speedCycles(0)
 {
     for (int i = 0; i < 5; ++i) {
         keys[i] = std::tolower(playersKeys[i]);
     }
 }
 void Player::draw() {
-    location.draw(ch);
+    location.draw();
 }
 void Player::erase() {
     location.draw(' ');
