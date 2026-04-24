@@ -149,7 +149,7 @@ void Game::manage_playing() {
     // Check if either player solved the exercise
     check_status();
 
-    sleep_ms(50);
+    sleep_ms(100);
 }
 
 void Game::manage_pause() {

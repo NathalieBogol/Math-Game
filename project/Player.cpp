@@ -19,10 +19,14 @@ void Player::erase() {
 void Player::move() {
     erase();
     location.move();
-    draw();
+
+    // If double speed is active, move again in the same direction
     if (speedCycles > 0) {
+        location.move();
         speedCycles--;
     }
+
+    draw();
 }
 
 void Player::keyPressed(char key) {
