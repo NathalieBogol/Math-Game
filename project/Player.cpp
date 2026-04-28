@@ -16,17 +16,18 @@ void Player::erase() {
     location.draw(' ');
 }
 
-void Player::move() {
+void Player::move(bool isFastRound) {
+	if (speedCycles == 0 && isFastRound) return;// Skip movement if it's a fast round and player isn't currently fast
     erase();
     location.move();
-
-    // If double speed is active, move again in the same direction
+    if (speedCycles > 0 && isFastRound) {
+        location.draw('z');
+    } else {
+        location.draw();
+	}
     if (speedCycles > 0) {
-        location.move();
         speedCycles--;
-    }
-
-    draw();
+	}
 }
 
 void Player::keyPressed(char key) {

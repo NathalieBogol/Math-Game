@@ -19,7 +19,7 @@ public:
 
 	void draw();
 	void erase();
-	void move();
+	void move(bool isFastRound);
 	void keyPressed(char key);
 
 	//inline functions
@@ -35,6 +35,7 @@ public:
 	void eraseLastDigit();  
 	void clearAnswer();     
 	void activateDoubleSpeed();
+	int getSpeedCycles() const { return speedCycles; }
 
 	bool isFast() const { return speedCycles > 0; }
 };

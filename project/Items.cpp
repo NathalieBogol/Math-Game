@@ -34,7 +34,7 @@ bool Items::isValidSpawn(int x, int y, const Player& p1, const Player& p2, const
 char Items::getRandomItemChar() const {
     int roll = rand() % 100;
 
-    if (roll < 75) {
+    if (roll < 15) {
         //75% to get a digit 0-9
         return '0' + (rand() % 10);
     }

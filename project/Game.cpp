@@ -18,8 +18,9 @@ Game::Game() :
     }
 {
 }
-
-    void Game::run() {
+//change name 
+void Game::run() {
+    size_t round = 0;
     while (current_status != GameStatus::EXIT) {
         switch (current_status) {
         case GameStatus::MENU:
@@ -29,14 +30,14 @@ Game::Game() :
             manage_instructions();
             break;
         case GameStatus::PLAYING:
-            manage_playing();
+            manage_playing(++round);
             break;
         case GameStatus::PAUSED:
             manage_pause();
             break;
         }
     }
-}
+ }
 //clears the screen and prints the menu
 void Game::draw_menu() {
     clrscr();
@@ -89,7 +90,7 @@ void Game::reset_game() {
 }
 
 // Game loop
-void Game::manage_playing() {
+void Game::manage_playing(size_t round) {
     gotoxy(0, 1); 
     std::cout << exercise.getExerciseString();
     if (check_kbhit()) {
@@ -102,8 +103,9 @@ void Game::manage_playing() {
         players[0].keyPressed(key);
         players[1].keyPressed(key);
     }
-    players[0].move();
-    players[1].move();
+	bool is_fast_round = (round % 2 == 0);
+    players[0].move(is_fast_round);
+    players[1].move(is_fast_round);
 
     // Check if either player lost all lives
     for (int i = 0; i < NUM_PLAYERS; i++) {
@@ -140,16 +142,15 @@ void Game::manage_playing() {
 
     // Show Player A info (bottom left)
     gotoxy(0, 24);
-    std::cout << "A Score: " << players[0].getScore() << "  Lives: " << players[0].getLives() << "      ";
+    std::cout << "A Score: " << players[0].getScore() << "  Lives: " << players[0].getLives() << " Speed Cycles: " <<players[0].getSpeedCycles() << "      ";
 
     // Show Player B info (bottom right)
     gotoxy(Screen::MAX_X - 20, 24);
-    std::cout << "B Score: " << players[1].getScore() << "  Lives: " << players[1].getLives() << "      ";
-
+    std::cout << "B Score: " << players[1].getScore() << "  Lives: " << players[1].getLives() << " Speed Cycles: " <<players[1].getSpeedCycles()<< "      ";
     // Check if either player solved the exercise
     check_status();
 
-    sleep_ms(100);
+    sleep_ms(50);
 }
 
 void Game::manage_pause() {

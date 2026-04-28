@@ -29,7 +29,7 @@ private:
 
 	void manage_menu();
 	void manage_instructions();
-	void manage_playing();
+	void manage_playing(size_t round);
 	void manage_pause();
 
 	void reset_game();
