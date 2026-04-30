@@ -20,11 +20,12 @@ void Player::move(bool isFastRound) {
 	if (speedCycles == 0 && isFastRound) return;// Skip movement if it's a fast round and player isn't currently fast
     erase();
     location.move();
-    if (speedCycles > 0 && isFastRound) {
-        location.draw('z');
+    if (speedCycles > 0) {
+        location.setColor(Color::LightRed);
     } else {
-        location.draw();
-	}
+        location.setColor(Color::White);
+    }
+    location.draw();
     if (speedCycles > 0) {
         speedCycles--;
 	}

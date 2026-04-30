@@ -17,6 +17,7 @@ Game::Game() :
         Player(Point(70, 10, 0, 0, 'B'), p_B_Keys)
     }
 {
+    set_colors_enabled(colorsEnabled);
 }
 //change name 
 void Game::run() {
@@ -41,10 +42,25 @@ void Game::run() {
 //clears the screen and prints the menu
 void Game::draw_menu() {
     clrscr();
-    std::cout << "=== MATH GAME ===" << std::endl << std::endl;
-    std::cout << "(1) Start a new game" << std::endl;
-    std::cout << "(8) Present instructions and keys" << std::endl;
-    std::cout << "(9) EXIT" << std::endl;
+    int centerX = 80 / 2;
+    int startY = 25 / 2 - 4;
+
+    gotoxy(centerX - 8, startY);
+    set_color(Color::LightYellow);
+    std::cout << "=== MATH GAME ===";
+    reset_color();
+
+    gotoxy(centerX - 9, startY + 2);
+    std::cout << "(1) Start a new game";
+
+    gotoxy(centerX - 14, startY + 3);
+    std::cout << "(8) Present instructions and keys";
+
+    gotoxy(centerX - 11, startY + 4);
+    std::cout << "(7) Colors Mode: " << (colorsEnabled ? "ON" : "OFF");
+
+    gotoxy(centerX - 5, startY + 5);
+    std::cout << "(9) EXIT";
 }
 
 
@@ -57,6 +73,10 @@ void Game::manage_menu() {
         reset_game();
         current_status = GameStatus::PLAYING;
     }
+    else if (choice == '7') {
+        colorsEnabled = !colorsEnabled;
+        set_colors_enabled(colorsEnabled);
+    }
     else if (choice == '8') {
         current_status = GameStatus::INSTRUCTIONS;
     }
@@ -68,7 +88,9 @@ void Game::manage_menu() {
 //instractions screen
 void Game::manage_instructions() {
     clrscr();
+    set_color(Color::LightYellow);
     std::cout << "=== INSTRUCTIONS ===" << std::endl << std::endl;
+    reset_color();
     std::cout << "Player 1 (A) Keys: W (Up), D (Right), X (Down), A (Left), S (Stay)" << std::endl;
     std::cout << "Player 2 (B) Keys: I (Up), L (Right), M (Down), J (Left), K (Stay)" << std::endl;
     std::cout << "Press ESC during the game to pause." << std::endl << std::endl;
@@ -142,11 +164,25 @@ void Game::manage_playing(size_t round) {
 
     // Show Player A info (bottom left)
     gotoxy(0, 24);
-    std::cout << "A Score: " << players[0].getScore() << "  Lives: " << players[0].getLives() << " Speed Cycles: " <<players[0].getSpeedCycles() << "      ";
+    reset_color();
+    std::cout << "A Score: " << players[0].getScore() << "  ";
+    if (players[0].getLives() == 1) {
+        set_color(Color::LightRed);
+    }
+    std::cout << "Lives: " << players[0].getLives();
+    reset_color();
+    std::cout << "   Speed Cycles: " << players[0].getSpeedCycles() << "      ";
 
     // Show Player B info (bottom right)
-    gotoxy(Screen::MAX_X - 20, 24);
-    std::cout << "B Score: " << players[1].getScore() << "  Lives: " << players[1].getLives() << " Speed Cycles: " <<players[1].getSpeedCycles()<< "      ";
+    gotoxy(Screen::MAX_X - 38, 24);
+    reset_color();
+    std::cout << "B Score: " << players[1].getScore() << "  ";
+    if (players[1].getLives() == 1) {
+        set_color(Color::LightRed);
+    }
+    std::cout << "Lives: " << players[1].getLives();
+    reset_color();
+    std::cout << "   Speed Cycles: " << players[1].getSpeedCycles()<< "      ";
     // Check if either player solved the exercise
     check_status();
 
@@ -214,18 +250,22 @@ void Game::displayAnswers() {
 
 void Game::check_status() {
     for (int i = 0; i < NUM_PLAYERS; i++) {
-        if (exercise.isCorrect(players[i].getCurrentAnswer()) && players[i].getCurrentAnswer() != "") {
+        bool solved = exercise.isCorrect(players[i].getCurrentAnswer()) && players[i].getCurrentAnswer() != "";
+        if (solved) {
             players[i].addScore(POINTS_PER_SOLUTION);
             gotoxy(25, 12);
-            std::cout << "Player " << (char)('A' + i) << " solved it!";
+        set_color(Color::LightYellow);
+        std::cout << "Player " << (char)('A' + i) << " solved it!";
+        reset_color();
             sleep_ms(1500);
-
-            if (players[i].getScore() >= WINNING_SCORE) {
-                announceWinner('A' + i);
-                current_status = GameStatus::MENU;
-            } else {
-                nextRound();
-            }
+        }
+        if (players[i].getScore() >= WINNING_SCORE) {
+            announceWinner('A' + i);
+            current_status = GameStatus::MENU;
+            return;
+        }
+        if (solved) {
+            nextRound();
             return;
         }
     }
@@ -247,10 +287,12 @@ void Game::nextRound() {
 void Game::announceWinner(char winnerChar) {
     clrscr();
     gotoxy(25, 12);
+    set_color(Color::LightYellow);
     if (winnerChar == 'A') {
         std::cout << "*** PLAYER A WINS! ***";
     } else {
         std::cout << "*** PLAYER B WINS! ***";
     }
+    reset_color();
     sleep_ms(2000);
 }

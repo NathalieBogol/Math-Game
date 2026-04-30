@@ -1,0 +1,1 @@
+Colors toggle in menu (play with or without colors), colorized exercise, scores, answers, items, walls, and winner/solved messages.
