@@ -26,10 +26,11 @@ private:
 	static constexpr int POINTS_PER_SOLUTION = 10;
 	static constexpr int POINTS_FOR_DOLLAR = 5;
 	static constexpr int WINNING_SCORE = 30; // 3 rounds * 10 points
+	bool colorsEnabled = true;
 
 	void manage_menu();
 	void manage_instructions();
-	void manage_playing();
+	void manage_playing(size_t round);
 	void manage_pause();
 
 	void reset_game();

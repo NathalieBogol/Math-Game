@@ -201,10 +201,33 @@ inline void cleanup_console() {
 
 enum class Color { Black, Blue, Green, Aqua, Red, Purple, Yellow, White, Gray, LightBlue, LightGreen, LightAqua, LightRed, LightPurple, LightYellow, BrightWhite };
 
+inline bool g_colors_enabled = true;
+
+inline void set_colors_enabled(bool enabled) {
+    g_colors_enabled = enabled;
+#ifdef PLATFORM_WINDOWS
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, static_cast<int>(Color::White));
+#else
+    if (!enabled) {
+        std::cout << "\033[0m";
+    }
+#endif
+}
+
 /**
  * Set text color (cross-platform)
  */
 inline void set_color(Color color) {
+#ifdef PLATFORM_WINDOWS
+    if (!g_colors_enabled) {
+        return;
+    }
+#else
+    if (!g_colors_enabled) {
+        return;
+    }
+#endif
 #ifdef PLATFORM_WINDOWS
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, static_cast<int>(color));

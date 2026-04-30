@@ -59,7 +59,33 @@ void Items::spawnItem(const Player& p1, const Player& p2, const Screen& screen) 
 
         if (isValidSpawn(x, y, p1, p2, screen)) {
             char itemChar = getRandomItemChar();
-            items[itemCount] = Point(x, y, 0, 0, itemChar);
+            Color itemColor = Color::White;
+            if (itemChar >= '0' && itemChar <= '9') {
+                itemColor = Color::LightYellow;
+            } else {
+                switch (itemChar) {
+                case '^':
+                    itemColor = Color::LightGreen;
+                    break;
+                case 'e':
+                case 'c':
+                case '#':
+                case '@':
+                    itemColor = Color::LightBlue;
+                    break;
+                case '$':
+                    itemColor = Color::Green;
+                    break;
+                case '*':
+                case '!':
+                    itemColor = Color::LightRed;
+                    break;
+                default:
+                    itemColor = Color::White;
+                    break;
+                }
+            }
+            items[itemCount] = Point(x, y, 0, 0, itemChar, itemColor);
             items[itemCount].draw();
             itemCount++;
             break; // Successfully spawned, exit the retry loop

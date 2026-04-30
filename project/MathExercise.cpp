@@ -17,5 +17,14 @@ std::string MathExercise::getExerciseString() const {
 }
 
 bool MathExercise::isCorrect(const std::string& playerAnswer) const {
-    return playerAnswer == std::to_string(correctAnswer);
+	if (playerAnswer.empty())
+		return false;
+
+	std::string correctStr = std::to_string(correctAnswer);
+
+	// Remove leading zeros from playerAnswer
+	size_t firstNonZero = playerAnswer.find_first_not_of('0');
+	std::string trimmedAnswer = (firstNonZero == std::string::npos) ? "0" : playerAnswer.substr(firstNonZero);
+
+	return trimmedAnswer == correctStr;
 }

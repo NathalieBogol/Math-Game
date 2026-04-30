@@ -38,6 +38,9 @@ public:
 	char getChar() const {
 		return ch;
 	}
+   void setColor(Color newColor) {
+		color = newColor;
+	}
 	bool operator==(const Point& p) const
 	{
 		return this->x == p.x && this->y == p.y;
