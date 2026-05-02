@@ -91,12 +91,28 @@ void Game::manage_instructions() {
     set_color(Color::LightYellow);
     std::cout << "=== INSTRUCTIONS ===" << std::endl << std::endl;
     reset_color();
+    std::cout << "GAME OVERVIEW:" << std::endl;
+    std::cout << "Number of Rounds: 3" << std::endl;
+    std::cout << "Winning Score: 30 points" << std::endl << std::endl;
+
+    std::cout << "PLAYER KEYS:" << std::endl;
     std::cout << "Player 1 (A) Keys: W (Up), D (Right), X (Down), A (Left), S (Stay)" << std::endl;
-    std::cout << "Player 2 (B) Keys: I (Up), L (Right), M (Down), J (Left), K (Stay)" << std::endl;
+    std::cout << "Player 2 (B) Keys: I (Up), L (Right), M (Down), J (Left), K (Stay)" << std::endl << std::endl;
+
+    std::cout << "SPECIAL CHARACTERS:" << std::endl;
+    std::cout << "e - Erase your last digit" << std::endl;
+    std::cout << "c - Clear your entire number" << std::endl;
+    std::cout << "@ - Erase opponent's last digit" << std::endl;
+    std::cout << "# - Clear opponent's entire number" << std::endl;
+    std::cout << "$ - Add bonus points to your score" << std::endl;
+    std::cout << "* - You lose a life and your number is cleared" << std::endl;
+    std::cout << "! - Opponent loses a life and their number is cleared" << std::endl;
+    std::cout << "^ - Double your movement speed for 40 cycles" << std::endl << std::endl;
+
     std::cout << "Press ESC during the game to pause." << std::endl << std::endl;
     std::cout << "Press any key to return to the menu..." << std::endl;
 
-   
+
     get_single_char();
     current_status = GameStatus::MENU;
 }
@@ -118,7 +134,7 @@ void Game::manage_playing(size_t round) {
     if (check_kbhit()) {
         char key = get_single_char();
 
-        if (key == 27) { //ESCAPE
+        if (key == ESC) { //ESCAPE
             current_status = GameStatus::PAUSED;
             return; 
         }
@@ -194,7 +210,7 @@ void Game::manage_pause() {
 	std::cout << "Game paused, press ESC again to continue or H to go to the main menu" << std::endl;
 
 	char key = get_single_char();
-	if (key == 27) { // ESC
+	if (key == ESC) { // ESC
 		current_status = GameStatus::PLAYING;
 		gotoxy(10, 12);
 		std::cout << "                                                                    " << std::endl;

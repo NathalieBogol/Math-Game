@@ -1,1 +1,9 @@
-Colors toggle in menu (play with or without colors), colorized exercise, scores, answers, items, walls, and winner/solved messages.
+Bonus:
+
+Colors toggle in menu (play with or without colors).
+Additional Color Features:
+- Colors for the special items: Each special character has its own unique color for better visual distinction
+- Player color changes to red when they have fast speed (after collecting ^)
+- Lives turn into red when only 1 life is left, alerting the player to danger.
+
+Speed cycles counter displayed after the player catches the ^ item, showing how many cycles of fast speed remain

@@ -12,6 +12,10 @@ enum class GameStatus {
 	EXIT
 };
 
+enum KeyCode {
+	ESC = 27
+};
+
 class Game {
 private:
 	static constexpr int NUM_PLAYERS = 2;
