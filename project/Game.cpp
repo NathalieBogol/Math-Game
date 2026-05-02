@@ -297,6 +297,10 @@ void Game::nextRound() {
         items.clearAll();
         exercise.generate();
         screen.draw();
+    } else {
+        char winner = (players[0].getScore() >= players[1].getScore()) ? 'A' : 'B';
+        announceWinner(winner);
+        current_status = GameStatus::MENU;
     }
 }
 
