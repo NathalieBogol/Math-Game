@@ -141,6 +141,20 @@ void Game::manage_playing(size_t round) {
         players[0].keyPressed(key);
         players[1].keyPressed(key);
     }
+    // Solution to players not moving when keyboard on Hebrew. Used AI to find the solution.
+#ifdef PLATFORM_WINDOWS
+    if (GetAsyncKeyState('W') & 0x8000) players[0].keyPressed('w');
+    if (GetAsyncKeyState('D') & 0x8000) players[0].keyPressed('d');
+    if (GetAsyncKeyState('X') & 0x8000) players[0].keyPressed('x');
+    if (GetAsyncKeyState('A') & 0x8000) players[0].keyPressed('a');
+    if (GetAsyncKeyState('S') & 0x8000) players[0].keyPressed('s');
+
+    if (GetAsyncKeyState('I') & 0x8000) players[1].keyPressed('i');
+    if (GetAsyncKeyState('L') & 0x8000) players[1].keyPressed('l');
+    if (GetAsyncKeyState('M') & 0x8000) players[1].keyPressed('m');
+    if (GetAsyncKeyState('J') & 0x8000) players[1].keyPressed('j');
+    if (GetAsyncKeyState('K') & 0x8000) players[1].keyPressed('k');
+#endif
 	bool is_fast_round = (round % 2 == 0);
     players[0].move(is_fast_round);
     players[1].move(is_fast_round);
