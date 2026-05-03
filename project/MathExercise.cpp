@@ -7,8 +7,8 @@ MathExercise::MathExercise() {
 }
 
 void MathExercise::generate() {
-    num1 = (rand() % 20) + 1; // rand a number between 1-20
-    num2 = (rand() % 20) + 1;
+    num1 = (rand() % 99) + 1; // rand a number between 1-99
+    num2 = (rand() % 99) + 1;
     correctAnswer = num1 + num2;
 }
 

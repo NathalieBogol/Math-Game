@@ -258,10 +258,10 @@ void Game::processSpecialItem(Player& current, Player& opponent, char itemChar) 
 
 void Game::displayAnswers() {
     gotoxy(0, 2);
-    std::cout << "A Answer: " << players[0].getCurrentAnswer() << "           ";
+    std::cout << "A Answer: " << players[0].getCurrentAnswer() << "               ";
 
     gotoxy(Screen::MAX_X - 18, 2);
-    std::cout << "B Answer: " << players[1].getCurrentAnswer() << "           ";
+    std::cout << "B Answer: " << players[1].getCurrentAnswer() << "               ";
 }
 
 void Game::check_status() {

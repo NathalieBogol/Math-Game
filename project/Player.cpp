@@ -62,7 +62,9 @@ void Player::loseLife() {
 }
 
 void Player::addDigit(char digit) {
-    currentAnswer += digit;
+    if (currentAnswer.size() < 6) {
+        currentAnswer += digit;
+    }
 }
 
 void Player::eraseLastDigit() {
