@@ -42,25 +42,25 @@ void Game::run() {
 //clears the screen and prints the menu
 void Game::draw_menu() {
     clrscr();
-    int centerX = 80 / 2;
-    int startY = 25 / 2 - 4;
+    int centerX = MENU_CENTER_X;
+    int startY = MENU_START_Y;
 
-    gotoxy(centerX - 8, startY);
+    gotoxy(centerX - MENU_TITLE_OFFSET, startY);
     set_color(Color::LightYellow);
     std::cout << "=== MATH GAME ===";
     reset_color();
 
-    gotoxy(centerX - 9, startY + 2);
-    std::cout << "(1) Start a new game";
+    gotoxy(centerX - MENU_OPTION1_OFFSET, startY + 2);
+    std::cout << "(" << (char)MENU_START << ") Start a new game";
 
-    gotoxy(centerX - 14, startY + 3);
-    std::cout << "(8) Present instructions and keys";
+    gotoxy(centerX - MENU_OPTION2_OFFSET, startY + 3);
+    std::cout << "(" << (char)MENU_INSTRUCTIONS << ") Present instructions and keys";
 
-    gotoxy(centerX - 11, startY + 4);
-    std::cout << "(7) Colors Mode: " << (colorsEnabled ? "ON" : "OFF");
+    gotoxy(centerX - MENU_OPTION3_OFFSET, startY + 4);
+    std::cout << "(" << (char)MENU_TOGGLE_COLORS << ") Colors Mode: " << (colorsEnabled ? "ON" : "OFF");
 
-    gotoxy(centerX - 5, startY + 5);
-    std::cout << "(9) EXIT";
+    gotoxy(centerX - MENU_OPTION4_OFFSET, startY + 5);
+    std::cout << "(" << (char)MENU_EXIT << ") EXIT";
 }
 
 
@@ -69,19 +69,23 @@ void Game::manage_menu() {
 
     char choice = get_single_char();
 
-    if (choice == '1') {
+    switch (static_cast<MenuChoice>(choice)) {
+    case MENU_START:
         reset_game();
         current_status = GameStatus::PLAYING;
-    }
-    else if (choice == '7') {
+        break;
+    case MENU_TOGGLE_COLORS:
         colorsEnabled = !colorsEnabled;
         set_colors_enabled(colorsEnabled);
-    }
-    else if (choice == '8') {
+        break;
+    case MENU_INSTRUCTIONS:
         current_status = GameStatus::INSTRUCTIONS;
-    }
-    else if (choice == '9') {
+        break;
+    case MENU_EXIT:
         current_status = GameStatus::EXIT;
+        break;
+    default:
+        break;
     }
 }
 
@@ -169,9 +173,9 @@ void Game::manage_playing(size_t round) {
         }
     }
 
-    // Spawn a new item every 20 frames
+    // Spawn a new item at fixed interval
     itemSpawnCounter++;
-    if (itemSpawnCounter >= 20) {
+    if (itemSpawnCounter >= ITEM_SPAWN_INTERVAL) {
         items.spawnItem(players[0], players[1], screen);
         itemSpawnCounter = 0;
     }
@@ -193,7 +197,7 @@ void Game::manage_playing(size_t round) {
     displayAnswers();
 
     // Show Player A info (bottom left)
-    gotoxy(0, 24);
+    gotoxy(0, Screen::MAX_Y - 1);
     reset_color();
     std::cout << "A Score: " << players[0].getScore() << "  ";
     if (players[0].getLives() == 1) {
@@ -204,7 +208,7 @@ void Game::manage_playing(size_t round) {
     std::cout << "   Speed Cycles: " << players[0].getSpeedCycles() << "      ";
 
     // Show Player B info (bottom right)
-    gotoxy(Screen::MAX_X - 38, 24);
+    gotoxy(Screen::MAX_X - 38, Screen::MAX_Y - 1);
     reset_color();
     std::cout << "B Score: " << players[1].getScore() << "  ";
     if (players[1].getLives() == 1) {
@@ -220,21 +224,26 @@ void Game::manage_playing(size_t round) {
 }
 
 void Game::manage_pause() {
-	gotoxy(10, 12);
-	std::cout << "Game paused, press ESC again to continue or H to go to the main menu" << std::endl;
+    gotoxy(PAUSE_MSG_X, PAUSE_MSG_Y);
+    std::cout << "Game paused, press ESC again to continue or H to go to the main menu" << std::endl;
 
-	char key = get_single_char();
-	if (key == ESC) { // ESC
-		current_status = GameStatus::PLAYING;
-		gotoxy(10, 12);
-		std::cout << "                                                                    " << std::endl;
-		items.drawItems(); // Redraw items after pause
-		players[0].draw();
-		players[1].draw();
-	}
-	else if (key == 'h' || key == 'H') {
-		current_status = GameStatus::MENU;
-	}
+    char key = get_single_char();
+    switch (static_cast<PauseChoice>(key)) {
+    case PAUSE_RESUME:
+        current_status = GameStatus::PLAYING;
+        gotoxy(PAUSE_MSG_X, PAUSE_MSG_Y);
+        std::cout << "                                                                    " << std::endl;
+        items.drawItems(); // Redraw items after pause
+        players[0].draw();
+        players[1].draw();
+        break;
+    case PAUSE_HOME_LOWER:
+    case PAUSE_HOME_UPPER:
+        current_status = GameStatus::MENU;
+        break;
+    default:
+        break;
+    }
 }
 
 void Game::processSpecialItem(Player& current, Player& opponent, char itemChar) {

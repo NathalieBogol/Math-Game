@@ -2,6 +2,21 @@
 #include "Point.h"
 #include "Screen.h"
 
+Point::Point() {}
+
+Point::Point(int x1, int y1, int dirx, int diry, char c)
+	: Point(x1, y1, dirx, diry, c, Color::White) {
+}
+
+Point::Point(int x1, int y1, int dirx, int diry, char c, Color myColor) {
+	x = x1;
+	y = y1;
+	dir_x = dirx;
+	dir_y = diry;
+	ch = c;
+	color = myColor;
+}
+
 void Point::draw(char c) {
 	gotoxy(x, y);
 	set_color(color);

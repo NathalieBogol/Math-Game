@@ -23,11 +23,11 @@ public:
 	void keyPressed(char key);
 
 	//inline functions
-	Point getLocation() const { return location; }
+	const Point& getLocation() const { return location; }
  char getChar() const { return location.getChar(); }
 	int getScore() const { return score; }
 	int getLives() const { return lives; }
-	std::string getCurrentAnswer() const { return currentAnswer; }
+	const std::string& getCurrentAnswer() const { return currentAnswer; }
 
 	void addScore(int pointsToAdd);
 	void loseLife();
