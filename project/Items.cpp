@@ -1,4 +1,5 @@
 #include "Items.h"
+#include <string>
 #include <cstdlib> 
 #include <cmath>   
 

@@ -12,6 +12,8 @@ enum class GameStatus {
 	EXIT
 };
 
+enum class Level { EASY, MEDIUM, HARD };
+
 enum KeyCode {
 	ESC = 27
 };
@@ -19,6 +21,7 @@ enum KeyCode {
 // Menu choices as char-backed enum (use char values to match input)
 enum MenuChoice {
 	MENU_START = '1',
+	MENU_SELECT_LEVEL = '2',
 	MENU_TOGGLE_COLORS = '7',
 	MENU_INSTRUCTIONS = '8',
 	MENU_EXIT = '9'
@@ -39,6 +42,7 @@ private:
 	Items items;
 	MathExercise exercise;
 	GameStatus current_status;
+	Level currentLevel = Level::EASY;
 	int itemSpawnCounter = 0; // Counter for item spawn timing
 	int roundNumber = 0; // Current round (0-2 for 3 rounds)
 	static constexpr int TOTAL_ROUNDS = 3;
@@ -65,6 +69,8 @@ private:
 
 	void reset_game();
 	void draw_menu();
+	void selectLevel();
+	const char* levelToString(Level level);
 
 	void check_status();
 	void processSpecialItem(Player& current, Player& opponent, char itemChar);

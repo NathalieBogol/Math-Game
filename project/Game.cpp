@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <string>
 #include "console.h"
 #include "Items.h"
 #include <iostream>
