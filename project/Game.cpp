@@ -39,7 +39,7 @@ void Game::run() {
             break;
         }
     }
- }
+}
 //clears the screen and prints the menu
 void Game::draw_menu() {
     clrscr();
@@ -55,13 +55,89 @@ void Game::draw_menu() {
     std::cout << "(" << (char)MENU_START << ") Start a new game";
 
     gotoxy(centerX - MENU_OPTION2_OFFSET, startY + 3);
+    std::cout << "(" << (char)MENU_SELECT_LEVEL << ") Select level [" << levelToString(currentLevel) << "]";
+
+    gotoxy(centerX - MENU_OPTION2_OFFSET, startY + 4);
+    std::cout << "(" << (char)MENU_SELECT_OPERATION << ") Select operation [" << operationToString(currentOperation) << "]";
+
+    gotoxy(centerX - MENU_OPTION2_OFFSET, startY + 5);
     std::cout << "(" << (char)MENU_INSTRUCTIONS << ") Present instructions and keys";
 
-    gotoxy(centerX - MENU_OPTION3_OFFSET, startY + 4);
+    gotoxy(centerX - MENU_OPTION3_OFFSET, startY + 6);
     std::cout << "(" << (char)MENU_TOGGLE_COLORS << ") Colors Mode: " << (colorsEnabled ? "ON" : "OFF");
 
-    gotoxy(centerX - MENU_OPTION4_OFFSET, startY + 5);
+    gotoxy(centerX - MENU_OPTION4_OFFSET, startY + 7);
     std::cout << "(" << (char)MENU_EXIT << ") EXIT";
+}
+
+const char* Game::levelToString(Level level) {
+    switch (level) {
+    case Level::EASY:
+        return "Easy";
+    case Level::MEDIUM:
+        return "Medium";
+    case Level::HARD:
+        return "Hard";
+    default:
+        return "Easy";
+    }
+}
+
+const char* Game::operationToString(Operation operation) {
+    switch (operation) {
+    case Operation::ADD:
+        return "+";
+    case Operation::SUBTRACT:
+        return "-";
+    case Operation::MULTIPLY:
+        return "*";
+    case Operation::DIVIDE:
+        return "/";
+    case Operation::EQUATION:
+        return "Eq";
+    default:
+        return "+";
+    }
+}
+
+void Game::selectOperation() {
+    switch (currentOperation) {
+    case Operation::ADD:
+        currentOperation = Operation::SUBTRACT;
+        break;
+    case Operation::SUBTRACT:
+        currentOperation = Operation::MULTIPLY;
+        break;
+    case Operation::MULTIPLY:
+        currentOperation = Operation::DIVIDE;
+        break;
+    case Operation::DIVIDE:
+        currentOperation = Operation::EQUATION;
+        break;
+    case Operation::EQUATION:
+        currentOperation = Operation::ADD;
+        break;
+    default:
+        currentOperation = Operation::ADD;
+        break;
+    }
+}
+
+void Game::selectLevel() {
+    switch (currentLevel) {
+    case Level::EASY:
+        currentLevel = Level::MEDIUM;
+        break;
+    case Level::MEDIUM:
+        currentLevel = Level::HARD;
+        break;
+    case Level::HARD:
+        currentLevel = Level::EASY;
+        break;
+    default:
+        currentLevel = Level::EASY;
+        break;
+    }
 }
 
 
@@ -74,6 +150,12 @@ void Game::manage_menu() {
     case MENU_START:
         reset_game();
         current_status = GameStatus::PLAYING;
+        break;
+    case MENU_SELECT_LEVEL:
+        selectLevel();
+        break;
+    case MENU_SELECT_OPERATION:
+        selectOperation();
         break;
     case MENU_TOGGLE_COLORS:
         colorsEnabled = !colorsEnabled;
@@ -127,7 +209,7 @@ void Game::reset_game() {
     players[0] = Player(Point(10, 10, 0, 0, 'A'), p_A_Keys);
     players[1] = Player(Point(70, 10, 0, 0, 'B'), p_B_Keys);
     roundNumber = 0;
-    exercise.generate(); // Generate first exercise
+    exercise.generate(currentLevel, currentOperation); // Generate first exercise
     items.clearAll();
     screen.draw();
 }
@@ -135,7 +217,7 @@ void Game::reset_game() {
 // Game loop
 void Game::manage_playing(size_t round) {
     gotoxy(0, 1); 
-    std::cout << exercise.getExerciseString();
+    std::cout << exercise.getExerciseString() << "                ";
     if (check_kbhit()) {
         char key = get_single_char();
 
@@ -319,7 +401,7 @@ void Game::nextRound() {
             players[i].clearAnswer();
         }
         items.clearAll();
-        exercise.generate();
+        exercise.generate(currentLevel, currentOperation);
         screen.draw();
     } else {
         char winner = (players[0].getScore() >= players[1].getScore()) ? 'A' : 'B';

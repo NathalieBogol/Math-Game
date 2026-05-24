@@ -3,6 +3,8 @@
 #include "Screen.h"
 #include "Items.h"
 #include "MathExercise.h"
+#include "Level.h"
+#include "Operation.h"
 
 enum class GameStatus {
 	MENU,
@@ -12,8 +14,6 @@ enum class GameStatus {
 	EXIT
 };
 
-enum class Level { EASY, MEDIUM, HARD };
-
 enum KeyCode {
 	ESC = 27
 };
@@ -22,6 +22,7 @@ enum KeyCode {
 enum MenuChoice {
 	MENU_START = '1',
 	MENU_SELECT_LEVEL = '2',
+   MENU_SELECT_OPERATION = '3',
 	MENU_TOGGLE_COLORS = '7',
 	MENU_INSTRUCTIONS = '8',
 	MENU_EXIT = '9'
@@ -43,6 +44,7 @@ private:
 	MathExercise exercise;
 	GameStatus current_status;
 	Level currentLevel = Level::EASY;
+  Operation currentOperation = Operation::ADD;
 	int itemSpawnCounter = 0; // Counter for item spawn timing
 	int roundNumber = 0; // Current round (0-2 for 3 rounds)
 	static constexpr int TOTAL_ROUNDS = 3;
@@ -71,6 +73,8 @@ private:
 	void draw_menu();
 	void selectLevel();
 	const char* levelToString(Level level);
+	void selectOperation();
+	const char* operationToString(Operation operation);
 
 	void check_status();
 	void processSpecialItem(Player& current, Player& opponent, char itemChar);
