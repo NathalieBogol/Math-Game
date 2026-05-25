@@ -301,6 +301,17 @@ void Game::manage_playing(size_t round) {
         } else if (collected != ' ') {
             if (collected == 'K') {
                 wallManager.applyKWall(i, opponent, players, items, screen);
+                // Bug 2: if K collector is already inside the new wall area, lose a life
+                // but keep current answer (do not create a new Player)
+                if (wallManager.isInsideWallArea(
+                        players[i].getLocation().getX(), players[i].getLocation().getY(),
+                        players[opponent].getLocation().getX(), players[opponent].getLocation().getY())) {
+                    players[i].loseLife();
+                    players[i].erase();
+                    Point respawn(i == 0 ? 10 : 70, 10, 0, 0, players[i].getChar());
+                    players[i].setLocation(respawn);
+                    players[i].draw();
+                }
             } else {
                 ItemManager::applyItem(players[i], players[opponent], collected);
             }
@@ -416,14 +427,11 @@ void Game::handleKWallCollision(int playerIndex) {
         return;
     }
 
-    players[playerIndex].loseLife();
-    Point respawn(playerIndex == 0 ? 10 : 70,
-                  10,
-                  0,
-                  0,
-                  players[playerIndex].getChar());
+    // Bug 3: touching the wall only causes a respawn; life is only lost if the
+    // player was already inside the wall when K was first collected (Bug 2).
     players[playerIndex].erase();
-    players[playerIndex] = Player(respawn, playerIndex == 0 ? p_A_Keys : p_B_Keys);
+    Point respawn(playerIndex == 0 ? 10 : 70, 10, 0, 0, players[playerIndex].getChar());
+    players[playerIndex].setLocation(respawn);
     players[playerIndex].draw();
 }
 void Game::announceWinner(char winnerChar) {

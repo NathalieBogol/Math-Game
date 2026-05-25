@@ -13,6 +13,7 @@ public:
     bool isActive() const { return kWallTimer > 0; }
     int getOwnerIndex() const { return kOwnerIndex; }
     bool isWallCell(int x, int y, const Screen& screen) const;
+    bool isInsideWallArea(int x, int y, int opponentX, int opponentY) const;
 
 private:
     static constexpr int WALL_DURATION = 250;

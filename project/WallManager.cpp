@@ -67,20 +67,41 @@ void WallManager::createWall(int opponentIndex, Player players[], Items& items, 
     int top = centerY - WALL_OFFSET;
     int bottom = centerY + WALL_OFFSET;
 
+    const int PLAY_HEIGHT = PLAY_MAX_Y - PLAY_MIN_Y + 1;
+
     for (int y = top; y <= bottom; ++y) {
-        if (y < PLAY_MIN_Y || y > PLAY_MAX_Y) {
-            continue;
-        }
+        // Bug 4: wrap y vertically within the play area
+        int wrappedY = PLAY_MIN_Y + ((y - PLAY_MIN_Y) % PLAY_HEIGHT + PLAY_HEIGHT) % PLAY_HEIGHT;
         for (int x = left; x <= right; ++x) {
             int wrappedX = (x + Screen::MAX_X) % Screen::MAX_X;
+            // Bug 1: remove items from ALL cells (perimeter and interior)
+            items.removeAt(wrappedX, wrappedY);
             if (y == top || y == bottom || x == left || x == right) {
-                screen.setCharAt(wrappedX, y, WALL_CHAR);
-                items.removeAt(wrappedX, y);
-                gotoxy(wrappedX, y);
+                screen.setCharAt(wrappedX, wrappedY, WALL_CHAR);
+                gotoxy(wrappedX, wrappedY);
                 set_color(Color::LightPurple);
                 std::cout << WALL_CHAR;
                 reset_color();
+            } else {
+                // Bug 1: clear interior cells visually
+                gotoxy(wrappedX, wrappedY);
+                std::cout << ' ';
             }
         }
     }
+}
+
+bool WallManager::isInsideWallArea(int x, int y, int opponentX, int opponentY) const {
+    int dx = x - opponentX;
+    if (dx < 0) dx = -dx;
+    // Horizontal wrapping
+    if (dx > Screen::MAX_X / 2) dx = Screen::MAX_X - dx;
+
+    int dy = y - opponentY;
+    if (dy < 0) dy = -dy;
+    // Vertical wrapping within play area
+    const int PLAY_HEIGHT = PLAY_MAX_Y - PLAY_MIN_Y + 1;
+    if (dy > PLAY_HEIGHT / 2) dy = PLAY_HEIGHT - dy;
+
+    return dx < WALL_OFFSET && dy < WALL_OFFSET;
 }
