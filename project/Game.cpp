@@ -411,6 +411,7 @@ void Game::nextRound() {
             players[i].clearAnswer();
         }
         items.clearAll();
+        wallManager.reset(screen);
         exercise.generate(currentLevel, currentOperation);
         screen.draw();
     } else {
