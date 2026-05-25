@@ -246,14 +246,33 @@ void Game::manage_playing(size_t round) {
     if (GetAsyncKeyState('J') & 0x8000) players[1].keyPressed('j');
     if (GetAsyncKeyState('K') & 0x8000) players[1].keyPressed('k');
 #endif
-	bool is_fast_round = (round % 2 == 0);
+  bool is_fast_round = (round % 2 == 0);
     Point previousLocations[NUM_PLAYERS] = { players[0].getLocation(), players[1].getLocation() };
     players[0].move(is_fast_round);
     players[1].move(is_fast_round);
 
-
-    handleKWallCollision(0);
-    handleKWallCollision(1);
+    for (int i = 0; i < NUM_PLAYERS; ++i) {
+        if (!wallManager.isActive()) {
+            continue;
+        }
+        if (wallManager.isWallCell(players[i].getLocation().getX(), players[i].getLocation().getY(), screen)) {
+            int wallX = players[i].getLocation().getX();
+            int wallY = players[i].getLocation().getY();
+            if (wallManager.getOwnerIndex() == i) {
+                handleKWallCollision(i);
+            } else {
+                players[i].erase();
+                players[i].setLocation(previousLocations[i]);
+                players[i].draw();
+            }
+            if (wallManager.isActive() && wallManager.isWallCell(wallX, wallY, screen)) {
+                gotoxy(wallX, wallY);
+                set_color(Color::LightPurple);
+                std::cout << '#';
+                reset_color();
+            }
+        }
+    }
 
     // Check if either player lost all lives
     for (int i = 0; i < NUM_PLAYERS; i++) {
