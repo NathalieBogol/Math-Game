@@ -258,13 +258,11 @@ void Game::manage_playing(size_t round) {
         if (wallManager.isWallCell(players[i].getLocation().getX(), players[i].getLocation().getY(), screen)) {
             int wallX = players[i].getLocation().getX();
             int wallY = players[i].getLocation().getY();
-            if (wallManager.getOwnerIndex() == i) {
-                handleKWallCollision(i);
-            } else {
-                players[i].erase();
-                players[i].setLocation(previousLocations[i]);
-                players[i].draw();
-            }
+            // Both the owner (K collector) and the trapped player are blocked
+            // from crossing the wall: revert to their previous position.
+            players[i].erase();
+            players[i].setLocation(previousLocations[i]);
+            players[i].draw();
             if (wallManager.isActive() && wallManager.isWallCell(wallX, wallY, screen)) {
                 gotoxy(wallX, wallY);
                 set_color(Color::LightPurple);
@@ -422,18 +420,6 @@ void Game::nextRound() {
     }
 }
 
-void Game::handleKWallCollision(int playerIndex) {
-    if (!wallManager.shouldRespawn(playerIndex, players[playerIndex], screen)) {
-        return;
-    }
-
-    // Bug 3: touching the wall only causes a respawn; life is only lost if the
-    // player was already inside the wall when K was first collected (Bug 2).
-    players[playerIndex].erase();
-    Point respawn(playerIndex == 0 ? 10 : 70, 10, 0, 0, players[playerIndex].getChar());
-    players[playerIndex].setLocation(respawn);
-    players[playerIndex].draw();
-}
 void Game::announceWinner(char winnerChar) {
     clrscr();
     gotoxy(25, 12);

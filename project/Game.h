@@ -82,7 +82,6 @@ private:
 	void displayAnswers();
 	void nextRound();
 	void announceWinner(char winnerChar);
- void handleKWallCollision(int playerIndex);
 
 public:
 	Game();

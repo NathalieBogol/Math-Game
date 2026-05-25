@@ -24,14 +24,6 @@ void WallManager::applyKWall(int ownerIndex, int opponentIndex, Player players[]
     createWall(opponentIndex, players, items, screen);
 }
 
-bool WallManager::shouldRespawn(int playerIndex, const Player& player, Screen& screen) const {
-    if (kWallTimer == 0 || kOwnerIndex != playerIndex) {
-        return false;
-    }
-
-    const Point& location = player.getLocation();
-    return isWallCell(location.getX(), location.getY(), screen);
-}
 void WallManager::redraw(Player players[], Items& items, Screen& screen) {
     if (kWallTimer > 0) {
         createWall(kOwnerIndex == 0 ? 1 : 0, players, items, screen);
