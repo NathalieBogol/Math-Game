@@ -1,7 +1,7 @@
 #include "Items.h"
 #include <string>
 #include <cstdlib> 
-#include <cmath>   
+#include <cmath>  
 
 // Checks if a generated location is valid according to the exercise rules
 bool Items::isValidSpawn(int x, int y, const Player& p1, const Player& p2, const Screen& screen) const {
@@ -41,8 +41,10 @@ char Items::getRandomItemChar() const {
     }
     else {
         //25% to get a special char
-        const char specials[] = { 'e', 'c', '@', '#', '$', '*', '!', '^' };
-        return specials[rand() % 8];
+        const char specials[] = {'K'};
+		return specials[rand() % 1];
+        //const char specials[] = { 'e', 'c', '@', '#', '$', '*', '!', '^', 'K' };
+       // return specials[rand() % 9];
     }
 }
 
@@ -81,6 +83,9 @@ void Items::spawnItem(const Player& p1, const Player& p2, const Screen& screen) 
                 case '!':
                     itemColor = Color::LightRed;
                     break;
+                case 'K':
+                    itemColor = Color::LightPurple;
+                    break;
                 default:
                     itemColor = Color::White;
                     break;
@@ -117,4 +122,14 @@ char Items::checkCollision(const Point& playerLocation) {
 
 void Items::clearAll() {
     itemCount = 0;
+}
+
+void Items::removeAt(int x, int y) {
+    for (int i = 0; i < itemCount; ++i) {
+        if (items[i].getX() == x && items[i].getY() == y) {
+            items[i] = items[itemCount - 1];
+            itemCount--;
+            return;
+        }
+    }
 }

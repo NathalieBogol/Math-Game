@@ -1,0 +1,37 @@
+Exercise 2
+In this exercise you will implement the following additions to your game:
+
+Levels and Other operations - Menu selection
+The Menu will have additional entries, so it will now present:
+(1) Start a new game
+(2) Select level [current: Easy]
+(3) Select operation [current: +]
+(8) Present instructions and keys
+(9) EXIT
+
+Options 2 and 3 in the menu will always present the current selected option for each, with the default set as above.
+
+Levels
+There will be 3 levels: 
+Easy: solution to the exercises are up to 2 digits
+Medium: solution to the exercises are up to 3 digits
+Hard: solution to the exercises are at least 2 digits and up to 5 digits
+
+Operations
+You should support the following operations: +, -, *, / and “Eq”
+For the / operation (division) the numbers selected for the exercise must produce an integer result.
+For the - operation, the numbers selected for the exercise must not result with a negative expected solution.
+For the Eq operation, an equation with X should appear, and the players should solve the value of X. The equation should be in the form: a + bX = c  =>  X =
+Where a, b, c are integers, negative or positive. The value for X must be a non-negative integer.
+
+A new char: K
+A new char may appear on screen: K. When this char is picked, the opponent player will be surrounded by a wall, 5 chars from the opponent to each side, for 25 game cycles. The walls will delete any item that appeared before on that location, if the player that selected the K appears there, the player will lose a life and start in another position on screen, but without erasing the numbers already picked.
+
+Important!
+Your grade will take into account the quality of the generated exercises.
+
+Note
+Where appropriate, change your original code, to use new materials that we learned.
+
+Bonus
+You may add additional elements and ask for a bonus in the bonus.txt file.

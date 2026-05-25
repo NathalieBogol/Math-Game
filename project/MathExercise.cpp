@@ -78,7 +78,7 @@ void MathExercise::generate(Level level, Operation operation) {
 		do {
 			xValue = rand() % (max_solution + 1);
 			int b = (rand() % 9) + 1;
-           int a = (rand() % (max_operand * 2 + 1)) - max_operand;
+            int a = (rand() % (max_operand * 2 + 1)) - max_operand;
 			int c = a + b * xValue;
 			correctAnswer = xValue;
 			num1 = a;

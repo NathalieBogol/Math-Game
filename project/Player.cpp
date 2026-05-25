@@ -12,6 +12,10 @@ Player::Player(const Point& startLocation, const char(&playersKeys)[5])
 void Player::draw() {
     location.draw();
 }
+
+void Player::setLocation(const Point& newLocation) {
+    location = newLocation;
+}
 void Player::erase() {
     location.draw(' ');
 }

@@ -2,6 +2,7 @@
 #include <string>
 #include "console.h"
 #include "Items.h"
+#include "ItemManager.h"
 #include <iostream>
 
 //Each of the players keys
@@ -209,6 +210,7 @@ void Game::reset_game() {
     players[0] = Player(Point(10, 10, 0, 0, 'A'), p_A_Keys);
     players[1] = Player(Point(70, 10, 0, 0, 'B'), p_B_Keys);
     roundNumber = 0;
+    wallManager.reset(screen);
     exercise.generate(currentLevel, currentOperation); // Generate first exercise
     items.clearAll();
     screen.draw();
@@ -218,6 +220,8 @@ void Game::reset_game() {
 void Game::manage_playing(size_t round) {
     gotoxy(0, 1); 
     std::cout << exercise.getExerciseString() << "                ";
+
+    wallManager.tick(screen);
     if (check_kbhit()) {
         char key = get_single_char();
 
@@ -243,8 +247,13 @@ void Game::manage_playing(size_t round) {
     if (GetAsyncKeyState('K') & 0x8000) players[1].keyPressed('k');
 #endif
 	bool is_fast_round = (round % 2 == 0);
+    Point previousLocations[NUM_PLAYERS] = { players[0].getLocation(), players[1].getLocation() };
     players[0].move(is_fast_round);
     players[1].move(is_fast_round);
+
+
+    handleKWallCollision(0);
+    handleKWallCollision(1);
 
     // Check if either player lost all lives
     for (int i = 0; i < NUM_PLAYERS; i++) {
@@ -271,7 +280,11 @@ void Game::manage_playing(size_t round) {
         if (collected >= '0' && collected <= '9') {
             players[i].addDigit(collected);
         } else if (collected != ' ') {
-            processSpecialItem(players[i], players[opponent], collected);
+            if (collected == 'K') {
+                wallManager.applyKWall(i, opponent, players, items, screen);
+            } else {
+                ItemManager::applyItem(players[i], players[opponent], collected);
+            }
         }
     }
    
@@ -317,6 +330,7 @@ void Game::manage_pause() {
         gotoxy(PAUSE_MSG_X, PAUSE_MSG_Y);
         std::cout << "                                                                    " << std::endl;
         items.drawItems(); // Redraw items after pause
+        wallManager.redraw(players, items, screen);
         players[0].draw();
         players[1].draw();
         break;
@@ -329,38 +343,6 @@ void Game::manage_pause() {
     }
 }
 
-void Game::processSpecialItem(Player& current, Player& opponent, char itemChar) {
-    switch (itemChar) {
-    case 'e': // erase last digit for this player
-        current.eraseLastDigit();
-        break;
-    case 'c': // clear entire number for this player
-        current.clearAnswer();
-        break;
-    case '@': // erase last digit for opponent
-        opponent.eraseLastDigit();
-        break;
-    case '#': // clear entire number for opponent
-        opponent.clearAnswer();
-        break;
-    case '$': // add points to this player
-        current.addScore(POINTS_FOR_DOLLAR);
-        break;
-    case '*': // this player loses life, number cleared
-        current.loseLife();
-        current.clearAnswer();
-        break;
-    case '!': // opponent loses life, number cleared
-        opponent.loseLife();
-        opponent.clearAnswer();
-        break;
-    case '^': // current player's speed is doubled (for 40 cycles)
-        current.activateDoubleSpeed();
-        break;
-    default:
-        break;
-    }
-}
 
 void Game::displayAnswers() {
     gotoxy(0, 2);
@@ -410,6 +392,21 @@ void Game::nextRound() {
     }
 }
 
+void Game::handleKWallCollision(int playerIndex) {
+    if (!wallManager.shouldRespawn(playerIndex, players[playerIndex], screen)) {
+        return;
+    }
+
+    players[playerIndex].loseLife();
+    Point respawn(playerIndex == 0 ? 10 : 70,
+                  10,
+                  0,
+                  0,
+                  players[playerIndex].getChar());
+    players[playerIndex].erase();
+    players[playerIndex] = Player(respawn, playerIndex == 0 ? p_A_Keys : p_B_Keys);
+    players[playerIndex].draw();
+}
 void Game::announceWinner(char winnerChar) {
     clrscr();
     gotoxy(25, 12);

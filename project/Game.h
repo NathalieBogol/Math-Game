@@ -5,6 +5,7 @@
 #include "MathExercise.h"
 #include "Level.h"
 #include "Operation.h"
+#include "WallManager.h"
 
 enum class GameStatus {
 	MENU,
@@ -41,7 +42,7 @@ private:
 	Screen screen;
 	Player players[NUM_PLAYERS]; // players[0] = A, players[1] = B
 	Items items;
-	MathExercise exercise;
+  MathExercise exercise;
 	GameStatus current_status;
 	Level currentLevel = Level::EASY;
   Operation currentOperation = Operation::ADD;
@@ -63,6 +64,7 @@ private:
 	static constexpr int PAUSE_MSG_X = 10;
 	static constexpr int PAUSE_MSG_Y = 12;
 	bool colorsEnabled = true;
+    WallManager wallManager;
 
 	void manage_menu();
 	void manage_instructions();
@@ -77,10 +79,10 @@ private:
 	const char* operationToString(Operation operation);
 
 	void check_status();
-	void processSpecialItem(Player& current, Player& opponent, char itemChar);
 	void displayAnswers();
 	void nextRound();
 	void announceWinner(char winnerChar);
+ void handleKWallCollision(int playerIndex);
 
 public:
 	Game();

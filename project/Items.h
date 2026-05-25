@@ -33,6 +33,8 @@ public:
 
     //Checks if the player's location matches any item's location
     char checkCollision(const Point& playerLocation);
+    //Remove item at specific coordinates
+    void removeAt(int x, int y);
 
     //Clears all items from the screen
     void clearAll();
