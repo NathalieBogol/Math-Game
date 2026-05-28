@@ -41,10 +41,11 @@ char Items::getRandomItemChar() const {
     }
     else {
         //25% to get a special char
-        const char specials[] = {'K'};
-		return specials[rand() % 1];
-        //const char specials[] = { 'e', 'c', '@', '#', '$', '*', '!', '^', 'K' };
-       // return specials[rand() % 9];
+         const char specials[] = { 'e', 'c', '@', '#', '$', '*', '!', '^', 'K' };
+         return specials[rand() % 9];
+		 // debug purpose to test K wall
+         //const char specials[] = { 'K' };
+         //return specials[rand() % 1];
     }
 }
 

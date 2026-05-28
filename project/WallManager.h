@@ -15,7 +15,7 @@ public:
     bool isInsideWallArea(int x, int y, int opponentX, int opponentY) const;
 
 private:
-    static constexpr int WALL_DURATION = 250;
+    static constexpr int WALL_DURATION = 25;
     static constexpr int WALL_OFFSET = 5;
     static constexpr char WALL_CHAR = '#';
     static constexpr int RESPAWN_X = 10;
