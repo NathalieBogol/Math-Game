@@ -258,13 +258,11 @@ void Game::manage_playing(size_t round) {
         if (wallManager.isWallCell(players[i].getLocation().getX(), players[i].getLocation().getY(), screen)) {
             int wallX = players[i].getLocation().getX();
             int wallY = players[i].getLocation().getY();
-            if (wallManager.getOwnerIndex() == i) {
-                handleKWallCollision(i);
-            } else {
-                players[i].erase();
-                players[i].setLocation(previousLocations[i]);
-                players[i].draw();
-            }
+            // Both the owner (K collector) and the trapped player are blocked
+            // from crossing the wall: revert to their previous position.
+            players[i].erase();
+            players[i].setLocation(previousLocations[i]);
+            players[i].draw();
             if (wallManager.isActive() && wallManager.isWallCell(wallX, wallY, screen)) {
                 gotoxy(wallX, wallY);
                 set_color(Color::LightPurple);
@@ -301,6 +299,17 @@ void Game::manage_playing(size_t round) {
         } else if (collected != ' ') {
             if (collected == 'K') {
                 wallManager.applyKWall(i, opponent, players, items, screen);
+                // Bug 2: if K collector is already inside the new wall area, lose a life
+                // but keep current answer (do not create a new Player)
+                if (wallManager.isInsideWallArea(
+                        players[i].getLocation().getX(), players[i].getLocation().getY(),
+                        players[opponent].getLocation().getX(), players[opponent].getLocation().getY())) {
+                    players[i].loseLife();
+                    players[i].erase();
+                    Point respawn(i == 0 ? 10 : 70, 10, 0, 0, players[i].getChar());
+                    players[i].setLocation(respawn);
+                    players[i].draw();
+                }
             } else {
                 ItemManager::applyItem(players[i], players[opponent], collected);
             }
@@ -402,6 +411,7 @@ void Game::nextRound() {
             players[i].clearAnswer();
         }
         items.clearAll();
+        wallManager.reset(screen);
         exercise.generate(currentLevel, currentOperation);
         screen.draw();
     } else {
@@ -411,21 +421,6 @@ void Game::nextRound() {
     }
 }
 
-void Game::handleKWallCollision(int playerIndex) {
-    if (!wallManager.shouldRespawn(playerIndex, players[playerIndex], screen)) {
-        return;
-    }
-
-    players[playerIndex].loseLife();
-    Point respawn(playerIndex == 0 ? 10 : 70,
-                  10,
-                  0,
-                  0,
-                  players[playerIndex].getChar());
-    players[playerIndex].erase();
-    players[playerIndex] = Player(respawn, playerIndex == 0 ? p_A_Keys : p_B_Keys);
-    players[playerIndex].draw();
-}
 void Game::announceWinner(char winnerChar) {
     clrscr();
     gotoxy(25, 12);

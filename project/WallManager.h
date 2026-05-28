@@ -8,11 +8,11 @@ public:
   void reset(Screen& screen);
     void tick(Screen& screen);
     void applyKWall(int ownerIndex, int opponentIndex, Player players[], Items& items, Screen& screen);
-    bool shouldRespawn(int playerIndex, const Player& player, Screen& screen) const;
     void redraw(Player players[], Items& items, Screen& screen);
     bool isActive() const { return kWallTimer > 0; }
     int getOwnerIndex() const { return kOwnerIndex; }
     bool isWallCell(int x, int y, const Screen& screen) const;
+    bool isInsideWallArea(int x, int y, int opponentX, int opponentY) const;
 
 private:
     static constexpr int WALL_DURATION = 250;
