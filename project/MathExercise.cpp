@@ -4,9 +4,13 @@
 #include <algorithm>
 #include <cmath>
 
-MathExercise::MathExercise() : operation(Operation::ADD) {
+MathExercise::MathExercise() : operation(Operation::ADD), equationExpr(nullptr) {
 	// The first exercise will be generated with the default level (Easy)
 	generate(Level::EASY, Operation::ADD);
+}
+
+MathExercise::~MathExercise() {
+	delete equationExpr;
 }
 
 void MathExercise::generate(Level level, Operation operation) {
@@ -74,17 +78,11 @@ void MathExercise::generate(Level level, Operation operation) {
 		} while (correctAnswer < min_solution || correctAnswer > max_solution);
 		break;
  case Operation::EQUATION: {
-		int xValue = 0;
-		do {
-			xValue = rand() % (max_solution + 1);
-			int b = (rand() % 9) + 1;
-            int a = (rand() % (max_operand * 2 + 1)) - max_operand;
-			int c = a + b * xValue;
-			correctAnswer = xValue;
-			num1 = a;
-			num2 = b;
-			equationString = std::to_string(a) + " + " + std::to_string(b) + "X = " + std::to_string(c);
-		} while (correctAnswer < min_solution || correctAnswer > max_solution);
+		// Use Expression Tree pattern (from lecturer's code) for ax + b = c
+		delete equationExpr;
+		equationExpr = new EquationExercise();
+		equationExpr->generate(level);
+		correctAnswer = equationExpr->getCorrectAnswer();
 		break;
 	}
 	}
@@ -101,7 +99,7 @@ std::string MathExercise::getExerciseString() const {
 	case Operation::DIVIDE:
 		return std::to_string(num1) + " / " + std::to_string(num2) + " = ?";
 	case Operation::EQUATION:
-		return equationString + "  =>  X = ?";
+		return equationExpr ? equationExpr->getExerciseString() : "Error";
 	default:
 		return std::to_string(num1) + " + " + std::to_string(num2) + " = ?";
 	}
@@ -110,6 +108,11 @@ std::string MathExercise::getExerciseString() const {
 bool MathExercise::isCorrect(const std::string& playerAnswer) const {
 	if (playerAnswer.empty())
 		return false;
+
+	// For EQUATION type, delegate to EquationExercise
+	if (operation == Operation::EQUATION && equationExpr) {
+		return equationExpr->isCorrect(playerAnswer);
+	}
 
 	std::string correctStr = std::to_string(correctAnswer);
 

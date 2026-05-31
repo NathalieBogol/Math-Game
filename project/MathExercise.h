@@ -3,6 +3,7 @@
 
 #include "Level.h"
 #include "Operation.h"
+#include "EquationExercise.h"
 
 class MathExercise {
 private:
@@ -12,9 +13,16 @@ private:
     Operation operation;
     std::string equationString;
 
+    // Expression tree based equation exercise (for ax + b = c)
+    EquationExercise* equationExpr;
+
 public:
-    //instractor 
     MathExercise();
+    ~MathExercise();
+
+    // Prevent copying (owns EquationExercise pointer)
+    MathExercise(const MathExercise&) = delete;
+    MathExercise& operator=(const MathExercise&) = delete;
 
     // rand new exercise every time the player solves the exercise or when we start the game
     void generate(Level level, Operation operation);
