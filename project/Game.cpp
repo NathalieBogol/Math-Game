@@ -314,12 +314,12 @@ void Game::manage_playing(size_t round) {
                     players[i].erase();
                     Point respawn(i == 0 ? 10 : 70, 10, 0, 0, players[i].getChar());
                     players[i].setLocation(respawn);
-                    players[i].draw();
-                    wallManager.applyKWall(i, opponent, players, items, screen);
+                    players[i].draw();;
                 }
             } else {
                 ItemManager::applyItem(players[i], players[opponent], collected);
             }
+            wallManager.applyKWall(i, opponent, players, items, screen);
         }
     }
    
