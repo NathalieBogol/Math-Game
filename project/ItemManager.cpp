@@ -1,5 +1,6 @@
 #include "ItemManager.h"
 
+// Applies the effect of a collected item to the current or opponent player
 void ItemManager::applyItem(Player& current, Player& opponent, char itemChar) {
     switch (itemChar) {
     case 'e':

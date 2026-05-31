@@ -42,10 +42,10 @@ private:
 	Screen screen;
 	Player players[NUM_PLAYERS]; // players[0] = A, players[1] = B
 	Items items;
-  MathExercise exercise;
+	MathExercise exercise;
 	GameStatus current_status;
 	Level currentLevel = Level::EASY;
-  Operation currentOperation = Operation::ADD;
+	Operation currentOperation = Operation::ADD;
 	int itemSpawnCounter = 0; // Counter for item spawn timing
 	int roundNumber = 0; // Current round (0-2 for 3 rounds)
 	static constexpr int TOTAL_ROUNDS = 3;

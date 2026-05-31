@@ -25,7 +25,7 @@ public:
 	//inline functions
 	const Point& getLocation() const { return location; }
     void setLocation(const Point& newLocation);
- char getChar() const { return location.getChar(); }
+	char getChar() const { return location.getChar(); }
 	int getScore() const { return score; }
 	int getLives() const { return lives; }
 	const std::string& getCurrentAnswer() const { return currentAnswer; }

@@ -1,12 +1,14 @@
 #include "WallManager.h"
 #include "console.h"
 
+// Resets wall state and clears any wall characters from the screen
 void WallManager::reset(Screen& screen) {
     kWallTimer = 0;
     kOwnerIndex = -1;
     clearWall(screen);
 }
 
+// Decrements the wall timer and clears the wall when it expires
 void WallManager::tick(Screen& screen) {
     if (kWallTimer > 0) {
         kWallTimer--;
@@ -17,6 +19,7 @@ void WallManager::tick(Screen& screen) {
     }
 }
 
+// Activates a temporary wall around the opponent and removes overlapping items
 void WallManager::applyKWall(int ownerIndex, int opponentIndex, Player players[], Items& items, Screen& screen) {
     clearWall(screen);
     kOwnerIndex = ownerIndex;
@@ -24,12 +27,14 @@ void WallManager::applyKWall(int ownerIndex, int opponentIndex, Player players[]
     createWall(opponentIndex, players, items, screen);
 }
 
+// Recreates the wall for the active owner after screen updates
 void WallManager::redraw(Player players[], Items& items, Screen& screen) {
     if (kWallTimer > 0) {
         createWall(kOwnerIndex == 0 ? 1 : 0, players, items, screen);
     }
 }
 
+// Clears all wall characters from the playable area
 void WallManager::clearWall(Screen& screen) {
     for (int y = PLAY_MIN_Y; y <= PLAY_MAX_Y; ++y) {
         for (int x = 0; x < Screen::MAX_X; ++x) {
@@ -42,6 +47,7 @@ void WallManager::clearWall(Screen& screen) {
     }
 }
 
+// Returns true if the specified cell contains a wall character
 bool WallManager::isWallCell(int x, int y, const Screen& screen) const {
     if (y < PLAY_MIN_Y || y > PLAY_MAX_Y) {
         return false;
@@ -50,6 +56,7 @@ bool WallManager::isWallCell(int x, int y, const Screen& screen) const {
 }
 
 
+// Draws the wall around the opponent, wrapping within the play area
 void WallManager::createWall(int opponentIndex, Player players[], Items& items, Screen& screen) {
     int centerX = players[opponentIndex].getLocation().getX();
     int centerY = players[opponentIndex].getLocation().getY();
@@ -62,11 +69,9 @@ void WallManager::createWall(int opponentIndex, Player players[], Items& items, 
     const int PLAY_HEIGHT = PLAY_MAX_Y - PLAY_MIN_Y + 1;
 
     for (int y = top; y <= bottom; ++y) {
-        // Bug 4: wrap y vertically within the play area
         int wrappedY = PLAY_MIN_Y + ((y - PLAY_MIN_Y) % PLAY_HEIGHT + PLAY_HEIGHT) % PLAY_HEIGHT;
         for (int x = left; x <= right; ++x) {
             int wrappedX = (x + Screen::MAX_X) % Screen::MAX_X;
-            // Bug 1: remove items from ALL cells (perimeter and interior)
             items.removeAt(wrappedX, wrappedY);
             if (y == top || y == bottom || x == left || x == right) {
                 screen.setCharAt(wrappedX, wrappedY, WALL_CHAR);
@@ -75,7 +80,6 @@ void WallManager::createWall(int opponentIndex, Player players[], Items& items, 
                 std::cout << WALL_CHAR;
                 reset_color();
             } else {
-                // Bug 1: clear interior cells visually
                 gotoxy(wrappedX, wrappedY);
                 std::cout << ' ';
             }
@@ -83,6 +87,7 @@ void WallManager::createWall(int opponentIndex, Player players[], Items& items, 
     }
 }
 
+// Returns true if a position lies within the wall bounds around the opponent.
 bool WallManager::isInsideWallArea(int x, int y, int opponentX, int opponentY) const {
     int dx = x - opponentX;
     if (dx < 0) dx = -dx;
@@ -95,5 +100,5 @@ bool WallManager::isInsideWallArea(int x, int y, int opponentX, int opponentY) c
     const int PLAY_HEIGHT = PLAY_MAX_Y - PLAY_MIN_Y + 1;
     if (dy > PLAY_HEIGHT / 2) dy = PLAY_HEIGHT - dy;
 
-    return dx < WALL_OFFSET && dy < WALL_OFFSET;
+    return dx <= WALL_OFFSET && dy <= WALL_OFFSET;
 }

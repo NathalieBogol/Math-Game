@@ -71,6 +71,7 @@ void Game::draw_menu() {
     std::cout << "(" << (char)MENU_EXIT << ") EXIT";
 }
 
+// Returns a display string for the current difficulty level
 const char* Game::levelToString(Level level) {
     switch (level) {
     case Level::EASY:
@@ -84,6 +85,7 @@ const char* Game::levelToString(Level level) {
     }
 }
 
+// Returns a display string for the current math operation
 const char* Game::operationToString(Operation operation) {
     switch (operation) {
     case Operation::ADD:
@@ -303,8 +305,7 @@ void Game::manage_playing(size_t round) {
             players[i].addDigit(collected);
         } else if (collected != ' ') {
             if (collected == 'K') {
-                wallManager.applyKWall(i, opponent, players, items, screen);
-                // Bug 2: if K collector is already inside the new wall area, lose a life
+                // if K collector is already inside the new wall area, lose a life
                 // but keep current answer (do not create a new Player)
                 if (wallManager.isInsideWallArea(
                         players[i].getLocation().getX(), players[i].getLocation().getY(),
@@ -314,6 +315,7 @@ void Game::manage_playing(size_t round) {
                     Point respawn(i == 0 ? 10 : 70, 10, 0, 0, players[i].getChar());
                     players[i].setLocation(respawn);
                     players[i].draw();
+                    wallManager.applyKWall(i, opponent, players, items, screen);
                 }
             } else {
                 ItemManager::applyItem(players[i], players[opponent], collected);

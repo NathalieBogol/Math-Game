@@ -4,11 +4,13 @@
 #include <algorithm>
 #include <cmath>
 
+// Initializes the exercise with the default operation and level
 MathExercise::MathExercise() : operation(Operation::ADD) {
 	// The first exercise will be generated with the default level (Easy)
 	generate(Level::EASY, Operation::ADD);
 }
 
+// Generates a new exercise based on the selected level and operation
 void MathExercise::generate(Level level, Operation operation) {
 	this->operation = operation;
 	equationString.clear();
@@ -90,6 +92,7 @@ void MathExercise::generate(Level level, Operation operation) {
 	}
 }
 
+// Returns the current exercise formatted for display
 std::string MathExercise::getExerciseString() const {
 	switch (operation) {
 	case Operation::ADD:
@@ -107,6 +110,7 @@ std::string MathExercise::getExerciseString() const {
 	}
 }
 
+// Checks whether the player's answer matches the correct solution
 bool MathExercise::isCorrect(const std::string& playerAnswer) const {
 	if (playerAnswer.empty())
 		return false;

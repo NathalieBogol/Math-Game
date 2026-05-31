@@ -43,9 +43,6 @@ char Items::getRandomItemChar() const {
         //25% to get a special char
          const char specials[] = { 'e', 'c', '@', '#', '$', '*', '!', '^', 'K' };
          return specials[rand() % 9];
-		 // debug purpose to test K wall
-         //const char specials[] = { 'K' };
-         //return specials[rand() % 1];
     }
 }
 
@@ -121,10 +118,12 @@ char Items::checkCollision(const Point& playerLocation) {
     return ' '; 
 }
 
+// Removes all active items from the game state
 void Items::clearAll() {
     itemCount = 0;
 }
 
+// Removes the item at the specified coordinates
 void Items::removeAt(int x, int y) {
     for (int i = 0; i < itemCount; ++i) {
         if (items[i].getX() == x && items[i].getY() == y) {

@@ -9,17 +9,21 @@ Player::Player(const Point& startLocation, const char(&playersKeys)[5])
         keys[i] = std::tolower(playersKeys[i]);
     }
 }
+// Draws the player at the current location
 void Player::draw() {
     location.draw();
 }
 
+// Updates the player location
 void Player::setLocation(const Point& newLocation) {
     location = newLocation;
 }
+// Erases the player from the current location
 void Player::erase() {
     location.draw(' ');
 }
 
+// Moves the player based on the current direction and speed state
 void Player::move(bool isFastRound) {
 	if (speedCycles == 0 && isFastRound) return;// Skip movement if it's a fast round and player isn't currently fast
     erase();
@@ -55,32 +59,38 @@ void Player::keyPressed(char key) {
     }
 }
 
+// Adds points to the player's score
 void Player::addScore(int pointsToAdd) {
     score += pointsToAdd;
 }
 
+// Decrements a life 
 void Player::loseLife() {
     if (lives > 0) {
         lives--;
     }
 }
 
+// Appends a digit to the current answer 
 void Player::addDigit(char digit) {
     if (currentAnswer.size() < 6) {
         currentAnswer += digit;
     }
 }
 
+// Removes the last digit from the current answer 
 void Player::eraseLastDigit() {
     if (!currentAnswer.empty()) {
         currentAnswer.pop_back();
     }
 }
 
+// Clears the current answer 
 void Player::clearAnswer() {
     currentAnswer.clear();
 }
 
+// Activates double speed for the player
 void Player::activateDoubleSpeed() {
     speedCycles = 40; 
 }
