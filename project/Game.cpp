@@ -316,10 +316,10 @@ void Game::manage_playing(size_t round) {
                     players[i].setLocation(respawn);
                     players[i].draw();;
                 }
+                wallManager.applyKWall(i, opponent, players, items, screen);
             } else {
                 ItemManager::applyItem(players[i], players[opponent], collected);
             }
-            wallManager.applyKWall(i, opponent, players, items, screen);
         }
     }
    
