@@ -6,6 +6,8 @@
 #include "Level.h"
 #include "Operation.h"
 #include "WallManager.h"
+#include "ComputerController.h"
+#include "GameFileManager.h"
 
 enum class GameStatus {
 	MENU,
@@ -19,11 +21,18 @@ enum KeyCode {
 	ESC = 27
 };
 
+enum class GameMode {
+	HUMAN_VS_COMPUTER,
+	HUMAN_VS_HUMAN,
+	COMPUTER_VS_COMPUTER
+};
+
 // Menu choices as char-backed enum (use char values to match input)
 enum MenuChoice {
 	MENU_START = '1',
 	MENU_SELECT_LEVEL = '2',
    MENU_SELECT_OPERATION = '3',
+	MENU_SELECT_GAME_MODE = '4',
 	MENU_TOGGLE_COLORS = '7',
 	MENU_INSTRUCTIONS = '8',
 	MENU_EXIT = '9'
@@ -46,6 +55,16 @@ private:
 	GameStatus current_status;
 	Level currentLevel = Level::EASY;
 	Operation currentOperation = Operation::ADD;
+	GameMode currentGameMode = GameMode::HUMAN_VS_COMPUTER;
+	ComputerController computerController;
+	GameFileManager fileManager;
+	bool silentMode = false;
+	bool ready = true;
+	bool gameEnded = false;
+	std::size_t gameTime = 0;
+	unsigned int saveSeedCounter = 0;
+	Direction lastRecordedDirections[NUM_PLAYERS] = { Direction::STAY, Direction::STAY };
+	std::string runSummary;
 	int itemSpawnCounter = 0; // Counter for item spawn timing
 	int roundNumber = 0; // Current round (0-2 for 3 rounds)
 	static constexpr int TOTAL_ROUNDS = 3;
@@ -68,7 +87,7 @@ private:
 
 	void manage_menu();
 	void manage_instructions();
-	void manage_playing(size_t round);
+	void manage_playing();
 	void manage_pause();
 
 	void reset_game();
@@ -77,14 +96,24 @@ private:
 	const char* levelToString(Level level);
 	void selectOperation();
 	const char* operationToString(Operation operation);
+	void selectGameMode();
+	const char* gameModeToString(GameMode gameMode) const;
+	bool isComputerPlayer(int playerIndex) const;
 
 	void check_status();
 	void displayAnswers();
 	void nextRound();
 	void announceWinner(char winnerChar);
+	void recordDirectionChanges();
+	void recordPlayerChanges(const int previousLives[NUM_PLAYERS],
+		const int previousScores[NUM_PLAYERS]);
+	void sleepFor(int normalMilliseconds, int loadMilliseconds) const;
+	void finishFileRun();
 
 public:
-	Game();
+	Game(ProgramMode mode = ProgramMode::NORMAL, bool silent = false);
 	void run();
+	bool isReady() const { return ready; }
+	const std::string& getRunSummary() const { return runSummary; }
 
 };

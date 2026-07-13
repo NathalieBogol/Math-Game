@@ -1,23 +1,94 @@
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
-#include <iostream>
-#include <ctime>   
-#include <cstdlib> 
+#include <streambuf>
+#include <string>
 #include "console.h"
 #include "Game.h"
 
-int main() {
-    // to reset the random
-    srand((unsigned int)time(nullptr));
+namespace {
+    // Generated with ChatGPT from the Exercise 3 Part 2 silent-mode requirement.
+    class NullBuffer : public std::streambuf {
+    protected:
+        int overflow(int character) override {
+            return traits_type::not_eof(character);
+        }
+    };
 
+    // Generated with ChatGPT from the Exercise 3 Part 2 command-line requirements.
+    bool parseArguments(int argc, char* argv[], ProgramMode& mode, bool& silent) {
+        mode = ProgramMode::NORMAL;
+        silent = false;
+
+        if (argc == 1) return true;
+        if (argc < 2 || argc > 3) return false;
+
+        const std::string firstArgument = argv[1];
+        if (firstArgument == "-load") mode = ProgramMode::LOAD;
+        else if (firstArgument == "-save") mode = ProgramMode::SAVE;
+        else return false;
+
+        if (argc == 3) {
+            if (std::string(argv[2]) != "-silent") return false;
+            silent = mode == ProgramMode::LOAD;
+        }
+        return true;
+    }
+}
+
+// Command-line and silent-output handling generated with ChatGPT from the prompt:
+// "Support math_game.exe -load|-save [-silent], ignore -silent for save,
+// preserve normal mode, and print only the test result during silent load."
+int main(int argc, char* argv[]) {
+    ProgramMode mode;
+    bool silent = false;
+    if (!parseArguments(argc, argv, mode, silent)) {
+        std::cout << "Usage: math_game.exe -load|-save [-silent]\n"
+            << "Or run without parameters for the normal game.\n";
+        return 1;
+    }
+
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
     init_console();
-    clrscr();
-    hideCursor();
+    if (!silent) {
+        clrscr();
+        hideCursor();
+    }
 
-    Game game;
-    game.run();
+    NullBuffer nullBuffer;
+    std::streambuf* normalOutput = std::cout.rdbuf();
+    if (silent) {
+        std::cout.rdbuf(&nullBuffer);
+    }
 
+    std::string summary;
+    bool ready = false;
+    {
+        Game game(mode, silent);
+        ready = game.isReady();
+        if (ready) {
+            game.run();
+        }
+        ready = game.isReady();
+        summary = game.getRunSummary();
+    }
+
+    if (silent) {
+        std::cout.rdbuf(normalOutput);
+        std::cout.clear();
+    }
     cleanup_console();
-    clrscr();
 
+    if (mode == ProgramMode::LOAD) {
+        if (!silent) clrscr();
+        std::cout << summary << std::endl;
+        return ready && summary.rfind("Test passed", 0) == 0 ? 0 : 1;
+    }
+
+    clrscr();
+    if (!ready && !summary.empty()) {
+        std::cout << summary << std::endl;
+        return 1;
+    }
     return 0;
 }

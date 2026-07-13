@@ -29,6 +29,15 @@ public:
 	char getChar() const {
 		return ch;
 	}
+	// Generated with ChatGPT from the Exercise 3 Part 2 prompt so only actual
+	// direction changes need to be written to game.steps.
+	Direction getDirection() const {
+		if (dir_y < 0) return Direction::UP;
+		if (dir_x > 0) return Direction::RIGHT;
+		if (dir_y > 0) return Direction::DOWN;
+		if (dir_x < 0) return Direction::LEFT;
+		return Direction::STAY;
+	}
    void setColor(Color newColor) {
 		color = newColor;
 	}

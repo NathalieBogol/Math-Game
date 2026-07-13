@@ -21,9 +21,11 @@ public:
 	void erase();
 	void move(bool isFastRound);
 	void keyPressed(char key);
+	void setDirection(Direction direction);
 
 	//inline functions
 	const Point& getLocation() const { return location; }
+	Direction getDirection() const { return location.getDirection(); }
     void setLocation(const Point& newLocation);
 	char getChar() const { return location.getChar(); }
 	int getScore() const { return score; }

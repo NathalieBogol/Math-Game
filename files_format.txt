@@ -1,0 +1,102 @@
+Exercise 3 - Game Files Format
+================================
+
+Both game.steps and game.result are plain text files stored in the program's
+current working directory. Each line is one record and fields are separated by
+spaces. Times are game-cycle numbers starting at 1, not real-world time.
+
+
+game.steps
+----------
+
+The first four lines are the header:
+
+VERSION 1
+SEED <unsigned integer>
+LEVEL <EASY|MEDIUM|HARD>
+OPERATION <ADD|SUBTRACT|MULTIPLY|DIVIDE|EQUATION>
+
+The remaining lines contain only direction changes:
+
+D <time> <player> <direction>
+
+player:
+  A = Player A
+  B = Player B
+
+direction:
+  U = Up
+  R = Right
+  D = Down
+  L = Left
+  S = Stay
+
+Example:
+
+D 25 A R
+D 41 B U
+D 58 A S
+
+A direction continues to apply until another direction record appears for that
+player. Positions, spawned items, exercises, scores, lives, and unchanged
+directions are not stored because they are reproduced from the seed and rules.
+Direction records must be in non-decreasing time order.
+
+
+game.result
+-----------
+
+The first line is:
+
+VERSION 1
+
+The remaining lines are result events in the exact order in which they occurred:
+
+PICK <time> <player> <character>
+LIFE <time> <player>
+SCORE <time> <player> <points added>
+END <time> <winning player>
+
+Examples:
+
+PICK 73 A 4
+PICK 105 B *
+LIFE 105 B
+SCORE 220 A 10
+END 640 A
+
+PICK records every collected digit or special character. LIFE identifies the
+player who lost a life, even when the loss was caused by the opponent. SCORE
+stores the number of points added by that event. END appears once and identifies
+the winner.
+
+
+Running the game
+----------------
+
+math_game.exe
+  Runs the normal game without reading or writing game files.
+
+math_game.exe -save
+  Runs the normal menu and game while recording game.steps and game.result.
+  Starting another game overwrites the previous recording.
+
+math_game.exe -load
+  Skips the menu, ignores all keyboard input including ESC, replays game.steps,
+  compares the actual events with game.result, prints the game more quickly than
+  normal play, reports pass/fail, and exits.
+
+math_game.exe -load -silent
+  Performs the same comparison without game rendering or delays and prints only
+  the final pass/fail report. -silent is ignored when used with -save.
+
+
+Provided examples
+-----------------
+
+example1.steps + example1.result
+example2.steps + example2.result
+example3.steps + example3.result
+
+To run an example, copy its .steps file to game.steps and its matching .result
+file to game.result, then run with -load or -load -silent.

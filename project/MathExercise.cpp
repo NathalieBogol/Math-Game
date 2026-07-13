@@ -5,9 +5,8 @@
 #include <cmath>
 
 // Initializes the exercise with the default operation and level
-MathExercise::MathExercise() : operation(Operation::ADD) {
-	// The first exercise will be generated with the default level (Easy)
-	generate(Level::EASY, Operation::ADD);
+MathExercise::MathExercise()
+	: num1(0), num2(0), correctAnswer(0), operation(Operation::ADD) {
 }
 
 // Generates a new exercise based on the selected level and operation
@@ -108,6 +107,10 @@ std::string MathExercise::getExerciseString() const {
 	default:
 		return std::to_string(num1) + " + " + std::to_string(num2) + " = ?";
 	}
+}
+
+std::string MathExercise::getCorrectAnswerString() const {
+	return std::to_string(correctAnswer);
 }
 
 // Checks whether the player's answer matches the correct solution

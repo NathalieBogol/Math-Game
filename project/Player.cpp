@@ -59,6 +59,10 @@ void Player::keyPressed(char key) {
     }
 }
 
+void Player::setDirection(Direction direction) {
+    location.setDirection(direction);
+}
+
 // Adds points to the player's score
 void Player::addScore(int pointsToAdd) {
     score += pointsToAdd;

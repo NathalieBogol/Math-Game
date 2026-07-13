@@ -4,14 +4,19 @@
 #include "Items.h"
 #include "ItemManager.h"
 #include <iostream>
+#include <ctime>
 
 //Each of the players keys
 static const char p_A_Keys[5] = { 'w', 'd', 'x', 'a', 's' };
 static const char p_B_Keys[5] = { 'i', 'l', 'm', 'j', 'k' };
 
-//icor
-Game::Game() :
+// Part 2 game-loop integration generated with ChatGPT from the prompt:
+// "Add deterministic -save/-load modes, timestamped steps and results, silent
+// verification, and preserve the existing normal game behavior."
+Game::Game(ProgramMode mode, bool silent) :
     current_status(GameStatus::MENU),
+    fileManager(mode),
+    silentMode(silent),
     itemSpawnCounter(0),
     roundNumber(0),
     players{
@@ -20,10 +25,27 @@ Game::Game() :
     }
 {
     set_colors_enabled(colorsEnabled);
+    if (fileManager.isLoading()) {
+        ready = fileManager.prepareLoad();
+        if (!ready) {
+            runSummary = "Load failed: " + fileManager.getError();
+        }
+    }
 }
 //change name 
 void Game::run() {
-    size_t round = 0;
+    if (!ready) {
+        return;
+    }
+
+    if (fileManager.isLoading()) {
+        currentLevel = fileManager.getLevel();
+        currentOperation = fileManager.getOperation();
+        reset_game();
+        if (!ready) return;
+        current_status = GameStatus::PLAYING;
+    }
+
     while (current_status != GameStatus::EXIT) {
         switch (current_status) {
         case GameStatus::MENU:
@@ -33,14 +55,16 @@ void Game::run() {
             manage_instructions();
             break;
         case GameStatus::PLAYING:
-            manage_playing(++round);
+            manage_playing();
             break;
         case GameStatus::PAUSED:
             manage_pause();
             break;
         }
     }
+    finishFileRun();
 }
+
 //clears the screen and prints the menu
 void Game::draw_menu() {
     clrscr();
@@ -62,12 +86,15 @@ void Game::draw_menu() {
     std::cout << "(" << (char)MENU_SELECT_OPERATION << ") Select operation [" << operationToString(currentOperation) << "]";
 
     gotoxy(centerX - MENU_OPTION2_OFFSET, startY + 5);
-    std::cout << "(" << (char)MENU_INSTRUCTIONS << ") Present instructions and keys";
+    std::cout << "(" << (char)MENU_SELECT_GAME_MODE << ") Game mode [current: " << gameModeToString(currentGameMode) << "]";
 
     gotoxy(centerX - MENU_OPTION3_OFFSET, startY + 6);
+    std::cout << "(" << (char)MENU_INSTRUCTIONS << ") Present instructions and keys";
+
+    gotoxy(centerX - MENU_OPTION3_OFFSET, startY + 7);
     std::cout << "(" << (char)MENU_TOGGLE_COLORS << ") Colors Mode: " << (colorsEnabled ? "ON" : "OFF");
 
-    gotoxy(centerX - MENU_OPTION4_OFFSET, startY + 7);
+    gotoxy(centerX - MENU_OPTION4_OFFSET, startY + 8);
     std::cout << "(" << (char)MENU_EXIT << ") EXIT";
 }
 
@@ -101,6 +128,42 @@ const char* Game::operationToString(Operation operation) {
     default:
         return "+";
     }
+}
+
+// The following game-mode menu support was generated with ChatGPT from the prompt:
+// "Implement Exercise 3 Part 1, including all three required game modes."
+const char* Game::gameModeToString(GameMode gameMode) const {
+    switch (gameMode) {
+    case GameMode::HUMAN_VS_HUMAN:
+        return "Human vs. Human";
+    case GameMode::HUMAN_VS_COMPUTER:
+        return "Human vs. Computer";
+    case GameMode::COMPUTER_VS_COMPUTER:
+        return "Computer vs. Computer";
+    default:
+        return "Human vs. Computer";
+    }
+}
+
+void Game::selectGameMode() {
+    switch (currentGameMode) {
+    case GameMode::HUMAN_VS_COMPUTER:
+        currentGameMode = GameMode::HUMAN_VS_HUMAN;
+        break;
+    case GameMode::HUMAN_VS_HUMAN:
+        currentGameMode = GameMode::COMPUTER_VS_COMPUTER;
+        break;
+    case GameMode::COMPUTER_VS_COMPUTER:
+        currentGameMode = GameMode::HUMAN_VS_COMPUTER;
+        break;
+    }
+}
+
+bool Game::isComputerPlayer(int playerIndex) const {
+    if (currentGameMode == GameMode::COMPUTER_VS_COMPUTER) {
+        return true;
+    }
+    return currentGameMode == GameMode::HUMAN_VS_COMPUTER && playerIndex == 1;
 }
 
 void Game::selectOperation() {
@@ -160,6 +223,9 @@ void Game::manage_menu() {
     case MENU_SELECT_OPERATION:
         selectOperation();
         break;
+    case MENU_SELECT_GAME_MODE:
+        selectGameMode();
+        break;
     case MENU_TOGGLE_COLORS:
         colorsEnabled = !colorsEnabled;
         set_colors_enabled(colorsEnabled);
@@ -189,6 +255,10 @@ void Game::manage_instructions() {
     std::cout << "Use the menu to choose the level: Easy, Medium, or Hard" << std::endl;
     std::cout << "Use the menu to choose the operation: +, -, *, /, or Eq" << std::endl << std::endl;
 
+    std::cout << "GAME MODES:" << std::endl;
+    std::cout << "Human vs. Human, Human vs. Computer, or Computer vs. Computer" << std::endl;
+    std::cout << "In Human vs. Computer, the human is always Player A on the left." << std::endl << std::endl;
+
     std::cout << "PLAYER KEYS:" << std::endl;
     std::cout << "Player 1 (A) Keys: W (Up), D (Right), X (Down), A (Left), S (Stay)" << std::endl;
     std::cout << "Player 2 (B) Keys: I (Up), L (Right), M (Down), J (Left), K (Stay)" << std::endl << std::endl;
@@ -214,6 +284,27 @@ void Game::manage_instructions() {
 
 
 void Game::reset_game() {
+    // Part 2 deterministic reset generated with ChatGPT from the same prompt.
+    // Save starts a fresh seeded recording; load restores the seed from game.steps.
+    gameTime = 0;
+    gameEnded = false;
+    itemSpawnCounter = 0;
+    lastRecordedDirections[0] = Direction::STAY;
+    lastRecordedDirections[1] = Direction::STAY;
+
+    if (fileManager.isSaving()) {
+        const unsigned int seed = static_cast<unsigned int>(std::time(nullptr)) + saveSeedCounter++;
+        std::srand(seed);
+        if (!fileManager.startSave(seed, currentLevel, currentOperation)) {
+            ready = false;
+            runSummary = "Save failed: " + fileManager.getError();
+            current_status = GameStatus::EXIT;
+            return;
+        }
+    } else if (fileManager.isLoading()) {
+        std::srand(fileManager.getSeed());
+    }
+
     players[0] = Player(Point(10, 10, 0, 0, 'A'), p_A_Keys);
     players[1] = Player(Point(70, 10, 0, 0, 'B'), p_B_Keys);
     roundNumber = 0;
@@ -221,39 +312,71 @@ void Game::reset_game() {
     exercise.generate(currentLevel, currentOperation); // Generate first exercise
     items.clearAll();
     screen.draw();
+    items.ensureProgressItem(players[0], players[1],
+        exercise.getCorrectAnswerString(), screen);
 }
 
 // Game loop
-void Game::manage_playing(size_t round) {
+void Game::manage_playing() {
     gotoxy(0, 1); 
     std::cout << exercise.getExerciseString() << "                ";
 
-    wallManager.tick(screen);
-    if (check_kbhit()) {
-        char key = get_single_char();
+    // Context-aware spawning generated with ChatGPT from the deadlock report:
+    // create a useful item before the board can fill, without replacing items.
+    items.ensureProgressItem(players[0], players[1],
+        exercise.getCorrectAnswerString(), screen);
 
-        if (key == ESC) { //ESCAPE
-            current_status = GameStatus::PAUSED;
-            return; 
+    // The record/replay input integration below was generated with ChatGPT from
+    // the Exercise 3 Part 2 prompt. Load mode ignores all keyboard input and
+    // applies only the timestamped direction changes stored in game.steps.
+    if (!fileManager.isLoading()) {
+        if (check_kbhit()) {
+            char key = get_single_char();
+
+            if (key == ESC) {
+                current_status = GameStatus::PAUSED;
+                return;
+            }
+            if (!isComputerPlayer(0)) players[0].keyPressed(key);
+            if (!isComputerPlayer(1)) players[1].keyPressed(key);
         }
-        players[0].keyPressed(key);
-        players[1].keyPressed(key);
-    }
-    // Solution to players not moving when keyboard on Hebrew. Used AI to find the solution.
-#ifdef PLATFORM_WINDOWS
-    if (GetAsyncKeyState('W') & 0x8000) players[0].keyPressed('w');
-    if (GetAsyncKeyState('D') & 0x8000) players[0].keyPressed('d');
-    if (GetAsyncKeyState('X') & 0x8000) players[0].keyPressed('x');
-    if (GetAsyncKeyState('A') & 0x8000) players[0].keyPressed('a');
-    if (GetAsyncKeyState('S') & 0x8000) players[0].keyPressed('s');
 
-    if (GetAsyncKeyState('I') & 0x8000) players[1].keyPressed('i');
-    if (GetAsyncKeyState('L') & 0x8000) players[1].keyPressed('l');
-    if (GetAsyncKeyState('M') & 0x8000) players[1].keyPressed('m');
-    if (GetAsyncKeyState('J') & 0x8000) players[1].keyPressed('j');
-    if (GetAsyncKeyState('K') & 0x8000) players[1].keyPressed('k');
+        // Solution to players not moving when keyboard on Hebrew. Used AI to find the solution.
+#ifdef PLATFORM_WINDOWS
+        if (!isComputerPlayer(0)) {
+            if (GetAsyncKeyState('W') & 0x8000) players[0].keyPressed('w');
+            if (GetAsyncKeyState('D') & 0x8000) players[0].keyPressed('d');
+            if (GetAsyncKeyState('X') & 0x8000) players[0].keyPressed('x');
+            if (GetAsyncKeyState('A') & 0x8000) players[0].keyPressed('a');
+            if (GetAsyncKeyState('S') & 0x8000) players[0].keyPressed('s');
+        }
+
+        if (!isComputerPlayer(1)) {
+            if (GetAsyncKeyState('I') & 0x8000) players[1].keyPressed('i');
+            if (GetAsyncKeyState('L') & 0x8000) players[1].keyPressed('l');
+            if (GetAsyncKeyState('M') & 0x8000) players[1].keyPressed('m');
+            if (GetAsyncKeyState('J') & 0x8000) players[1].keyPressed('j');
+            if (GetAsyncKeyState('K') & 0x8000) players[1].keyPressed('k');
+        }
 #endif
-  bool is_fast_round = (round % 2 == 0);
+
+        for (int i = 0; i < NUM_PLAYERS; ++i) {
+            if (isComputerPlayer(i)) {
+                players[i].setDirection(computerController.chooseDirection(
+                    players[i], exercise, items, screen));
+            }
+        }
+    }
+
+    ++gameTime;
+    if (fileManager.isLoading()) {
+        fileManager.applyDirections(gameTime, players);
+    } else {
+        recordDirectionChanges();
+    }
+    wallManager.tick(screen);
+
+    bool is_fast_round = (gameTime % 2 == 0);
     Point previousLocations[NUM_PLAYERS] = { players[0].getLocation(), players[1].getLocation() };
     players[0].move(is_fast_round);
     players[1].move(is_fast_round);
@@ -284,7 +407,6 @@ void Game::manage_playing(size_t round) {
         if (players[i].getLives() <= 0) {
             int winner = (i == 0) ? 1 : 0;
             announceWinner('A' + winner);
-            current_status = GameStatus::MENU;
             return;
         }
     }
@@ -297,9 +419,20 @@ void Game::manage_playing(size_t round) {
     }
 
     // Check for item collection for each player
+    // Part 2 result-event capture generated with ChatGPT from the same prompt.
     for (int i = 0; i < NUM_PLAYERS; i++) {
         char collected = items.checkCollision(players[i].getLocation());
         int opponent = (i == 0) ? 1 : 0;
+
+        if (collected != ' ') {
+            fileManager.recordPickup(gameTime, i, collected);
+        }
+        int previousLives[NUM_PLAYERS] = {
+            players[0].getLives(), players[1].getLives()
+        };
+        int previousScores[NUM_PLAYERS] = {
+            players[0].getScore(), players[1].getScore()
+        };
 
         if (collected >= '0' && collected <= '9') {
             players[i].addDigit(collected);
@@ -320,6 +453,9 @@ void Game::manage_playing(size_t round) {
             } else {
                 ItemManager::applyItem(players[i], players[opponent], collected);
             }
+        }
+        if (collected != ' ') {
+            recordPlayerChanges(previousLives, previousScores);
         }
     }
    
@@ -351,7 +487,12 @@ void Game::manage_playing(size_t round) {
     // Check if either player solved the exercise
     check_status();
 
-    sleep_ms(50);
+    if (fileManager.isLoading() && !gameEnded
+        && gameTime >= fileManager.getExpectedEndTime()) {
+        current_status = GameStatus::EXIT;
+    }
+
+    sleepFor(50, 20);
 }
 
 void Game::manage_pause() {
@@ -392,15 +533,15 @@ void Game::check_status() {
         bool solved = exercise.isCorrect(players[i].getCurrentAnswer()) && players[i].getCurrentAnswer() != "";
         if (solved) {
             players[i].addScore(POINTS_PER_SOLUTION);
+            fileManager.recordScore(gameTime, i, POINTS_PER_SOLUTION);
             gotoxy(25, 12);
         set_color(Color::LightYellow);
         std::cout << "Player " << (char)('A' + i) << " solved it!";
         reset_color();
-            sleep_ms(1500);
+            sleepFor(1500, 600);
         }
         if (players[i].getScore() >= WINNING_SCORE) {
             announceWinner('A' + i);
-            current_status = GameStatus::MENU;
             return;
         }
         if (solved) {
@@ -421,15 +562,19 @@ void Game::nextRound() {
         wallManager.reset(screen);
         exercise.generate(currentLevel, currentOperation);
         screen.draw();
+        items.ensureProgressItem(players[0], players[1],
+            exercise.getCorrectAnswerString(), screen);
     } else {
         char winner = (players[0].getScore() >= players[1].getScore()) ? 'A' : 'B';
         announceWinner(winner);
-        current_status = GameStatus::MENU;
     }
 }
 
 void Game::announceWinner(char winnerChar) {
-    clrscr();
+    const int winnerIndex = winnerChar - 'A';
+    fileManager.recordEnd(gameTime, winnerIndex);
+    gameEnded = true;
+    if (!silentMode) clrscr();
     gotoxy(25, 12);
     set_color(Color::LightYellow);
     if (winnerChar == 'A') {
@@ -438,5 +583,45 @@ void Game::announceWinner(char winnerChar) {
         std::cout << "*** PLAYER B WINS! ***";
     }
     reset_color();
-    sleep_ms(2000);
+    sleepFor(2000, 800);
+    current_status = fileManager.isLoading() ? GameStatus::EXIT : GameStatus::MENU;
+}
+
+// These recording helpers were generated with ChatGPT from the Exercise 3 Part 2
+// prompt. They store only direction changes and the specifically required result events.
+void Game::recordDirectionChanges() {
+    for (int i = 0; i < NUM_PLAYERS; ++i) {
+        const Direction currentDirection = players[i].getDirection();
+        if (currentDirection != lastRecordedDirections[i]) {
+            fileManager.recordDirection(gameTime, i, currentDirection);
+            lastRecordedDirections[i] = currentDirection;
+        }
+    }
+}
+
+void Game::recordPlayerChanges(const int previousLives[NUM_PLAYERS],
+    const int previousScores[NUM_PLAYERS]) {
+    for (int i = 0; i < NUM_PLAYERS; ++i) {
+        if (players[i].getLives() < previousLives[i]) {
+            fileManager.recordLifeLoss(gameTime, i);
+        }
+        if (players[i].getScore() > previousScores[i]) {
+            fileManager.recordScore(gameTime, i,
+                players[i].getScore() - previousScores[i]);
+        }
+    }
+}
+
+void Game::sleepFor(int normalMilliseconds, int loadMilliseconds) const {
+    if (silentMode) {
+        return;
+    }
+    sleep_ms(fileManager.isLoading() ? loadMilliseconds : normalMilliseconds);
+}
+
+void Game::finishFileRun() {
+    fileManager.closeFiles();
+    if (fileManager.isLoading()) {
+        fileManager.compareResults(runSummary);
+    }
 }

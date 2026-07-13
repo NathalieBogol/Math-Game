@@ -127,9 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ComputerController.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameFileManager.h" />
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Items.h" />
     <ClInclude Include="Level.h" />
@@ -141,7 +143,9 @@
     <ClInclude Include="WallManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ComputerController.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameFileManager.cpp" />
     <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="Items.cpp" />
     <ClCompile Include="main.cpp" />

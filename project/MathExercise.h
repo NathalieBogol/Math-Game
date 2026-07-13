@@ -22,6 +22,9 @@ public:
     //converts the exersise to str
     std::string getExerciseString() const;
 
+    // Read-only access lets a computer player plan which digits to collect
+    std::string getCorrectAnswerString() const;
+
    // checking is the string that the player collected is the right one
     bool isCorrect(const std::string& playerAnswer) const;
 };

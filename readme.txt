@@ -11,5 +11,15 @@ Notes:
 - The winner is the first player to get 30 points. 
   Points are awarded based on the correctness of the answer and the items collected.
 - Auto win condition: If a player lost all 3 lives, the other player wins automatically.
+- Exercise 3 Part 1 adds Human vs. Human, Human vs. Computer, and Computer vs. Computer modes.
+- In Human vs. Computer mode, Player A (the left player) is always the human.
+- Computer players use read-only board information to seek required digits, repair wrong answers,
+  avoid harmful items and walls, and collect useful bonus items while waiting.
+- Item spawning prevents deadlocks after at least 10 items are present: when no existing item can
+  advance the current state, a useful item is spawned. Existing items are never replaced.
+- Exercise 3 Part 2 supports normal, -save, -load, and -load -silent runs.
+- Saved games record a random seed, selected level and operation, and only timestamped direction changes.
+- Result files record pickups, life losses, score additions, and the winner with game-cycle timestamps.
+- See files_format.txt for the complete format and example usage.
 
 ENJOY THE GAME!
