@@ -5,11 +5,15 @@
 #include "Screen.h"
 #include <queue>
 
+// This file controls the computer player's movement. It chooses useful items
+// for the current math answer and searches the board for a safe shortest path.
 namespace {
+    // The playable rows exclude the screen's header and footer areas.
     constexpr int PLAY_MIN_Y = 4;
     constexpr int PLAY_MAX_Y = 19;
     constexpr int PLAY_HEIGHT = PLAY_MAX_Y - PLAY_MIN_Y + 1;
 
+    // A queued board cell keeps the first move taken to reach that cell.
     struct SearchCell {
         int x;
         int y;
@@ -17,9 +21,7 @@ namespace {
     };
 }
 
-// This computer-player implementation was generated with ChatGPT from the prompt:
-// "Implement Exercise 3 Part 1 with a smart, read-only board-aware computer that
-// controls a player only by selecting movement directions."
+// Chooses the next needed item, then falls back to safe bonus items.
 Direction ComputerController::chooseDirection(const Player& player,
     const MathExercise& exercise, const Items& items, const Screen& screen) const {
     Direction direction = Direction::STAY;
@@ -36,6 +38,7 @@ Direction ComputerController::chooseDirection(const Player& player,
     return Direction::STAY;
 }
 
+// Determines whether the computer needs the next digit, an erase, or a correction.
 std::string ComputerController::chooseWantedItems(const Player& player,
     const MathExercise& exercise) const {
     const std::string correctAnswer = exercise.getCorrectAnswerString();
@@ -56,6 +59,7 @@ std::string ComputerController::chooseWantedItems(const Player& player,
     return "";
 }
 
+// Uses breadth-first search to find the first move toward a safe wanted item.
 bool ComputerController::findShortestPath(const Player& player, const Items& items,
     const Screen& screen, const std::string& wantedItems,
     Direction& chosenDirection) const {
@@ -75,6 +79,7 @@ bool ComputerController::findShortestPath(const Player& player, const Items& ite
     const int dx[] = { 0, 1, 0, -1 };
     const int dy[] = { -1, 0, 1, 0 };
 
+    // Seed the search with each possible first move, including wraparound.
     for (int i = 0; i < 4; ++i) {
         int nextX = (startX + dx[i] + Screen::MAX_X) % Screen::MAX_X;
         int nextY = PLAY_MIN_Y +
@@ -101,6 +106,7 @@ bool ComputerController::findShortestPath(const Player& player, const Items& ite
             return true;
         }
 
+        // Continue the search in the four cardinal directions.
         for (int i = 0; i < 4; ++i) {
             int nextX = (current.x + dx[i] + Screen::MAX_X) % Screen::MAX_X;
             int nextY = PLAY_MIN_Y +
@@ -113,6 +119,7 @@ bool ComputerController::findShortestPath(const Player& player, const Items& ite
     return false;
 }
 
+// Allows empty spaces, wanted items, and bonuses that do not alter the answer.
 bool ComputerController::isSafeToCross(char item,
     const std::string& wantedItems) const {
     if (item == ' ' || wantedItems.find(item) != std::string::npos) {

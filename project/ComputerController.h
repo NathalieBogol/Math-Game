@@ -8,9 +8,10 @@ class MathExercise;
 class Player;
 class Screen;
 
+// Selects safe board routes for the computer-controlled player.
 class ComputerController {
 public:
-    // Chooses a direction using read-only game information
+    // Chooses a direction using read-only game information.
     Direction chooseDirection(const Player& player, const MathExercise& exercise,
         const Items& items, const Screen& screen) const;
 
