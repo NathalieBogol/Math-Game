@@ -2,14 +2,13 @@
 #include "Player.h"
 #include <sstream>
 
-// This file-recording implementation was generated with ChatGPT from the prompt:
-// "Implement Exercise 3 Part 2 with concise deterministic steps files, result
-// files, load/save modes, silent comparison, and clear file-error handling."
 namespace {
+    // Converts a zero-based player index to the file format's player letter.
     char playerToChar(int playerIndex) {
         return static_cast<char>('A' + playerIndex);
     }
 
+    // Converts a movement direction to its compact file representation.
     char directionToChar(Direction direction) {
         switch (direction) {
         case Direction::UP: return 'U';
@@ -21,6 +20,7 @@ namespace {
         return 'S';
     }
 
+    // Reads a compact direction and reports whether it is valid.
     bool charToDirection(char value, Direction& direction) {
         switch (value) {
         case 'U': direction = Direction::UP; return true;
@@ -32,6 +32,7 @@ namespace {
         }
     }
 
+    // Converts a level enum to the text stored in the steps file.
     const char* levelToFileString(Level level) {
         switch (level) {
         case Level::EASY: return "EASY";
@@ -41,6 +42,7 @@ namespace {
         return "EASY";
     }
 
+    // Reads a level name from the steps file.
     bool fileStringToLevel(const std::string& value, Level& level) {
         if (value == "EASY") level = Level::EASY;
         else if (value == "MEDIUM") level = Level::MEDIUM;
@@ -49,6 +51,7 @@ namespace {
         return true;
     }
 
+    // Converts an operation enum to the text stored in the steps file.
     const char* operationToFileString(Operation operation) {
         switch (operation) {
         case Operation::ADD: return "ADD";
@@ -60,6 +63,7 @@ namespace {
         return "ADD";
     }
 
+    // Reads an operation name from the steps file.
     bool fileStringToOperation(const std::string& value, Operation& operation) {
         if (value == "ADD") operation = Operation::ADD;
         else if (value == "SUBTRACT") operation = Operation::SUBTRACT;
@@ -71,9 +75,11 @@ namespace {
     }
 }
 
+// Stores the mode used to decide whether the manager saves or replays a game.
 GameFileManager::GameFileManager(ProgramMode mode) : mode(mode) {
 }
 
+// Clears previous replay data and loads both files needed for a replay.
 bool GameFileManager::prepareLoad() {
     errorMessage.clear();
     loadedSteps.clear();
@@ -90,6 +96,7 @@ bool GameFileManager::prepareLoad() {
     return true;
 }
 
+// Opens fresh output files and writes the replay metadata headers.
 bool GameFileManager::startSave(unsigned int newSeed, Level newLevel,
     Operation newOperation) {
     closeFiles();
@@ -114,11 +121,13 @@ bool GameFileManager::startSave(unsigned int newSeed, Level newLevel,
     return true;
 }
 
+// Closes any files currently owned by the manager.
 void GameFileManager::closeFiles() {
     if (stepsOutput.is_open()) stepsOutput.close();
     if (resultOutput.is_open()) resultOutput.close();
 }
 
+// Writes one player direction to the steps file while saving.
 void GameFileManager::recordDirection(std::size_t time, int playerIndex,
     Direction direction) {
     if (isSaving() && stepsOutput) {
@@ -127,6 +136,7 @@ void GameFileManager::recordDirection(std::size_t time, int playerIndex,
     }
 }
 
+// Applies all directions recorded for the current replay time.
 void GameFileManager::applyDirections(std::size_t time, Player players[2]) const {
     for (const DirectionStep& step : loadedSteps) {
         if (step.time == time) {
@@ -135,24 +145,28 @@ void GameFileManager::applyDirections(std::size_t time, Player players[2]) const
     }
 }
 
+// Records an item pickup as a result event.
 void GameFileManager::recordPickup(std::size_t time, int playerIndex, char item) {
     std::ostringstream line;
     line << "PICK " << time << ' ' << playerToChar(playerIndex) << ' ' << item;
     recordResultLine(line.str());
 }
 
+// Records a lost life as a result event.
 void GameFileManager::recordLifeLoss(std::size_t time, int playerIndex) {
     std::ostringstream line;
     line << "LIFE " << time << ' ' << playerToChar(playerIndex);
     recordResultLine(line.str());
 }
 
+// Records points earned as a result event.
 void GameFileManager::recordScore(std::size_t time, int playerIndex, int points) {
     std::ostringstream line;
     line << "SCORE " << time << ' ' << playerToChar(playerIndex) << ' ' << points;
     recordResultLine(line.str());
 }
 
+// Records the end of the game and flushes saved output immediately.
 void GameFileManager::recordEnd(std::size_t time, int winnerIndex) {
     std::ostringstream line;
     line << "END " << time << ' ' << playerToChar(winnerIndex);
@@ -163,6 +177,7 @@ void GameFileManager::recordEnd(std::size_t time, int winnerIndex) {
     }
 }
 
+// Writes a result while saving or stores it for comparison while loading.
 void GameFileManager::recordResultLine(const std::string& line) {
     if (isSaving() && resultOutput) {
         resultOutput << line << '\n';
@@ -171,6 +186,7 @@ void GameFileManager::recordResultLine(const std::string& line) {
     }
 }
 
+// Compares replayed result events with the expected result file in order.
 bool GameFileManager::compareResults(std::string& report) const {
     const std::size_t commonSize =
         actualResults.size() < expectedResults.size() ? actualResults.size() : expectedResults.size();
@@ -196,6 +212,7 @@ bool GameFileManager::compareResults(std::string& report) const {
     return true;
 }
 
+// Loads replay metadata and validates the ordered direction steps.
 bool GameFileManager::loadStepsFile() {
     std::ifstream input(STEPS_FILE);
     if (!input) {
@@ -236,6 +253,7 @@ bool GameFileManager::loadStepsFile() {
     return true;
 }
 
+// Loads and validates the ordered result events, including the required END.
 bool GameFileManager::loadResultFile() {
     std::ifstream input(RESULT_FILE);
     if (!input) {

@@ -10,9 +10,6 @@
 static const char p_A_Keys[5] = { 'w', 'd', 'x', 'a', 's' };
 static const char p_B_Keys[5] = { 'i', 'l', 'm', 'j', 'k' };
 
-// Part 2 game-loop integration generated with ChatGPT from the prompt:
-// "Add deterministic -save/-load modes, timestamped steps and results, silent
-// verification, and preserve the existing normal game behavior."
 Game::Game(ProgramMode mode, bool silent) :
     current_status(GameStatus::MENU),
     fileManager(mode),
@@ -130,8 +127,7 @@ const char* Game::operationToString(Operation operation) {
     }
 }
 
-// The following game-mode menu support was generated with ChatGPT from the prompt:
-// "Implement Exercise 3 Part 1, including all three required game modes."
+
 const char* Game::gameModeToString(GameMode gameMode) const {
     switch (gameMode) {
     case GameMode::HUMAN_VS_HUMAN:
@@ -284,7 +280,6 @@ void Game::manage_instructions() {
 
 
 void Game::reset_game() {
-    // Part 2 deterministic reset generated with ChatGPT from the same prompt.
     // Save starts a fresh seeded recording; load restores the seed from game.steps.
     gameTime = 0;
     gameEnded = false;
@@ -320,15 +315,9 @@ void Game::reset_game() {
 void Game::manage_playing() {
     gotoxy(0, 1); 
     std::cout << exercise.getExerciseString() << "                ";
-
-    // Context-aware spawning generated with ChatGPT from the deadlock report:
     // create a useful item before the board can fill, without replacing items.
     items.ensureProgressItem(players[0], players[1],
         exercise.getCorrectAnswerString(), screen);
-
-    // The record/replay input integration below was generated with ChatGPT from
-    // the Exercise 3 Part 2 prompt. Load mode ignores all keyboard input and
-    // applies only the timestamped direction changes stored in game.steps.
     if (!fileManager.isLoading()) {
         if (check_kbhit()) {
             char key = get_single_char();
@@ -419,7 +408,6 @@ void Game::manage_playing() {
     }
 
     // Check for item collection for each player
-    // Part 2 result-event capture generated with ChatGPT from the same prompt.
     for (int i = 0; i < NUM_PLAYERS; i++) {
         char collected = items.checkCollision(players[i].getLocation());
         int opponent = (i == 0) ? 1 : 0;
@@ -587,8 +575,6 @@ void Game::announceWinner(char winnerChar) {
     current_status = fileManager.isLoading() ? GameStatus::EXIT : GameStatus::MENU;
 }
 
-// These recording helpers were generated with ChatGPT from the Exercise 3 Part 2
-// prompt. They store only direction changes and the specifically required result events.
 void Game::recordDirectionChanges() {
     for (int i = 0; i < NUM_PLAYERS; ++i) {
         const Direction currentDirection = players[i].getDirection();

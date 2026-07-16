@@ -7,7 +7,6 @@
 #include "Game.h"
 
 namespace {
-    // Generated with ChatGPT from the Exercise 3 Part 2 silent-mode requirement.
     class NullBuffer : public std::streambuf {
     protected:
         int overflow(int character) override {
@@ -15,7 +14,6 @@ namespace {
         }
     };
 
-    // Generated with ChatGPT from the Exercise 3 Part 2 command-line requirements.
     bool parseArguments(int argc, char* argv[], ProgramMode& mode, bool& silent) {
         mode = ProgramMode::NORMAL;
         silent = false;
@@ -36,9 +34,7 @@ namespace {
     }
 }
 
-// Command-line and silent-output handling generated with ChatGPT from the prompt:
-// "Support math_game.exe -load|-save [-silent], ignore -silent for save,
-// preserve normal mode, and print only the test result during silent load."
+
 int main(int argc, char* argv[]) {
     ProgramMode mode;
     bool silent = false;

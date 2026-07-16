@@ -4,12 +4,14 @@
 #include <cmath>  
 
 namespace {
+    // Adds a character only when it is not already in the collection.
     void addUniqueChar(std::string& chars, char value) {
         if (chars.find(value) == std::string::npos) {
             chars += value;
         }
     }
 
+    // Returns the next item needed to advance or repair the player's answer.
     char getAnswerProgressItem(const Player& player,
         const std::string& correctAnswer) {
         const std::string& answer = player.getCurrentAnswer();
@@ -72,10 +74,10 @@ char Items::getRandomItemChar() const {
     }
 }
 
-// This context-aware spawning logic was generated with ChatGPT from the prompt:
-// "Prevent a full board from deadlocking by spawning needed items in the first
+
+// Prevent a full board from deadlocking by spawning needed items in the first
 // place, including answer digits, correction items, score/life items, and
-// opponent-answer deletion items, without replacing existing items."
+// opponent-answer deletion items, without replacing existing items.
 std::string Items::getProgressItemChars(const Player& p1, const Player& p2,
     const std::string& correctAnswer) const {
     std::string progressItems;
@@ -228,7 +230,7 @@ char Items::checkCollision(const Point& playerLocation) {
     return ' '; 
 }
 
-// Generated with ChatGPT from the Exercise 3 Part 1 prompt: provide the computer
+
 // read-only access to the item at a board position without changing game state.
 char Items::getCharAt(int x, int y) const {
     for (int i = 0; i < itemCount; ++i) {

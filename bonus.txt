@@ -7,4 +7,6 @@ Additional Color Features:
 - Lives turn into red when only 1 life is left, alerting the player to danger.
 - K items and the walls are in light purple color.
 
-Speed cycles counter displayed after the player catches the ^ item, showing how many cycles of fast speed remain
+-Speed cycles counter displayed after the player catches the ^ item, showing how many cycles of fast speed remain
+
+-Deadlock prevention: When no correct answer digit is available, the game prevents a full board from deadlocking by spawning needed items first. These include answer digits, correction items, score/life items, and opponent-answer deletion items, without replacing existing items.
